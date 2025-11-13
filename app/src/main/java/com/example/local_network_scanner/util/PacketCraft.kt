@@ -1,19 +1,19 @@
 package com.example.local_network_scanner.util
 
 import com.example.local_network_scanner.vpn.PacketParser
-import org.xbill.DNS.Message
+import org.xbill.DNS.*
 import java.nio.ByteBuffer
 
 object PacketCraft {
 
     fun buildFakeDnsResponse(ipHeader: PacketParser.IpHeader, udpHeader: PacketParser.UdpHeader, dnsQuery: Message): ByteBuffer {
         val dnsResponse = Message(dnsQuery.header.id)
-        dnsResponse.header.setFlag(org.xbill.DNS.Flags.QR.toInt())
-        dnsResponse.addRecord(dnsQuery.question, org.xbill.DNS.Section.QUESTION)
+        dnsResponse.header.setFlag(Flags.QR.toInt())
+        dnsResponse.addRecord(dnsQuery.question, Section.QUESTION)
 
         val nxDomainResponse = Message(dnsQuery.header.id)
-        nxDomainResponse.header.rcode = org.xbill.DNS.Rcode.NXDOMAIN
-        nxDomainResponse.header.setFlag(org.xbill.DNS.Flags.QR.toInt())
+        nxDomainResponse.header.rcode = Rcode.NXDOMAIN
+        nxDomainResponse.header.setFlag(Flags.QR.toInt())
         val dnsResponseBytes = nxDomainResponse.toWire()
 
         val totalLength = 20 + 8 + dnsResponseBytes.size // IP header + UDP header + DNS payload

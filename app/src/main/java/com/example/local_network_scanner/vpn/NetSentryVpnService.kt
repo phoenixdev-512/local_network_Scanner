@@ -84,7 +84,7 @@ class NetSentryVpnService : VpnService() {
             return
         }
 
-        tcpProxy = TcpProxy(this, settingsRepository, logDao)
+        tcpProxy = TcpProxy(this, logDao)
         udpProxy = UdpProxy(this, connectivityManager, settingsRepository, logDao)
         dnsProxy = DnsProxy()
 

@@ -8,11 +8,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -60,11 +58,13 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel = 
                 )
             }
             
-            HorizontalDivider()
+            Divider()
 
             // DNS Settings
             Text("DNS Settings", style = androidx.compose.material3.MaterialTheme.typography.titleMedium, modifier = Modifier.padding(16.dp))
-            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
+            // TODO: Replace with proper segmented buttons when Material3 1.2.0 is stable
+            // Using simple buttons as fallback
+            Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
                  // ... (DNS options code from before)
             }
             if (dnsSettings.dnsMode == "CUSTOM") {
@@ -88,7 +88,7 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel = 
                 )
             }
             
-            HorizontalDivider()
+            Divider()
             
             // Notifications
             Text("Notifications", style = androidx.compose.material3.MaterialTheme.typography.titleMedium, modifier = Modifier.padding(16.dp))
