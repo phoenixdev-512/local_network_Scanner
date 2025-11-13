@@ -26,7 +26,7 @@ import com.example.local_network_scanner.data.model.AppNetworkActivity
 import com.example.local_network_scanner.ui.theme.AppSpacing
 import com.example.local_network_scanner.ui.viewmodel.ActivityViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun ActivityScreen(viewModel: ActivityViewModel = hiltViewModel()) {
     val recentActivity by viewModel.last5MinutesActivity.collectAsState()
@@ -301,35 +301,5 @@ fun AppActivityCard(activity: AppNetworkActivity) {
                 }
             }
         }
-    }
-}
-
-@Composable
-fun PulsingDot() {
-    val infiniteTransition = rememberInfiniteTransition(label = "pulsing")
-    val alpha by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = 0.3f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(800),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "alpha"
-    )
-    
-    Box(
-        modifier = Modifier
-            .size(8.dp)
-            .alpha(alpha)
-            .background(MaterialTheme.colorScheme.primary, CircleShape)
-    )
-}
-
-fun formatBytes(bytes: Long): String {
-    return when {
-        bytes < 1024 -> "$bytes B"
-        bytes < 1024 * 1024 -> String.format("%.2f KB", bytes / 1024.0)
-        bytes < 1024 * 1024 * 1024 -> String.format("%.2f MB", bytes / (1024.0 * 1024))
-        else -> String.format("%.2f GB", bytes / (1024.0 * 1024 * 1024))
     }
 }

@@ -29,6 +29,7 @@ import com.example.local_network_scanner.ui.viewmodel.DashboardViewModel
  * Dashboard screen with Speedtest-inspired design
  * Features real-time metrics, network monitoring, and quick actions
  */
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun DashboardScreen(
     navController: NavController? = null,
