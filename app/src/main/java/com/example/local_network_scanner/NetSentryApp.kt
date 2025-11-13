@@ -1,85 +1,265 @@
 package com.example.local_network_scanner
 
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.Map
-import androidx.compose.material.icons.filled.Security
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Wifi
-import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.local_network_scanner.ui.AppListScreen
-import com.example.local_network_scanner.ui.FirewallScreen
-import com.example.local_network_scanner.ui.LogScreen
-import com.example.local_network_scanner.ui.MapScreen
-import com.example.local_network_scanner.ui.SettingsScreen
-import com.example.local_network_scanner.ui.WifiScreen
+import com.example.local_network_scanner.ui.*
+import com.example.local_network_scanner.ui.theme.*
+import kotlinx.coroutines.launch
 
 sealed class Screen(val route: String, val label: String, val icon: @Composable () -> Unit) {
+    object Dashboard : Screen("dashboard", "Dashboard", { Icon(Icons.Filled.Home, contentDescription = null) })
+    object Network : Screen("network", "Network", { Icon(Icons.Filled.Wifi, contentDescription = null) })
+    object Security : Screen("security", "Security", { Icon(Icons.Filled.Security, contentDescription = null) })
+    object Activity : Screen("activity", "Activity", { Icon(Icons.Filled.History, contentDescription = null) })
+    
+    // Legacy routes (still accessible)
     object Firewall : Screen("firewall", "Firewall", { Icon(Icons.Filled.Security, contentDescription = null) })
     object AppRules : Screen("app_rules", "App Rules", { Icon(Icons.Filled.List, contentDescription = null) })
     object ConnectionLog : Screen("connection_log", "Connection Log", { Icon(Icons.Filled.History, contentDescription = null) })
     object Map : Screen("map", "Map", { Icon(Icons.Filled.Map, contentDescription = null) })
     object Wifi : Screen("wifi", "Wi-Fi", { Icon(Icons.Filled.Wifi, contentDescription = null) })
     object Settings : Screen("settings", "Settings", { Icon(Icons.Filled.Settings, contentDescription = null) })
+    
+    // New screens
+    object Profile : Screen("profile", "Profile", { Icon(Icons.Filled.Person, contentDescription = null) })
+    object NetworkManager : Screen("network_manager", "Network Manager", { Icon(Icons.Filled.Router, contentDescription = null) })
 }
 
-val items = listOf(
-    Screen.Firewall,
-    Screen.AppRules,
-    Screen.ConnectionLog,
-    Screen.Map,
-    Screen.Wifi
+// Bottom navigation items (4 essential tabs)
+val bottomNavItems = listOf(
+    Screen.Dashboard,
+    Screen.Network,
+    Screen.Security,
+    Screen.Activity
 )
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NetSentryApp() {
     val navController = rememberNavController()
-    Scaffold(
-        bottomBar = {
-            NavigationBar {
-                val navBackStackEntry by navController.currentBackStackEntryAsState()
-                val currentDestination = navBackStackEntry?.destination
-                items.forEach { screen ->
-                    NavigationBarItem(
-                        icon = { screen.icon() },
-                        label = { Text(screen.label) },
-                        selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
-                        onClick = {
-                            navController.navigate(screen.route) {
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
-                                }
-                                launchSingleTop = true
-                                restoreState = true
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+    
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet(
+                drawerContainerColor = SurfaceDarkGray
+            ) {
+                NavigationDrawerContent(
+                    onNavigate = { route ->
+                        navController.navigate(route) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
                             }
+                            launchSingleTop = true
+                            restoreState = true
                         }
-                    )
-                }
+                        scope.launch { drawerState.close() }
+                    }
+                )
             }
         }
-    ) { innerPadding ->
-        NavHost(navController, startDestination = Screen.Firewall.route, Modifier.padding(innerPadding)) {
-            composable(Screen.Firewall.route) { FirewallScreen(navController) }
-            composable(Screen.AppRules.route) { AppListScreen() }
-            composable(Screen.ConnectionLog.route) { LogScreen() }
-            composable(Screen.Map.route) { MapScreen() }
-            composable(Screen.Wifi.route) { WifiScreen() }
-            composable(Screen.Settings.route) { SettingsScreen(navController) }
+    ) {
+        Scaffold(
+            bottomBar = {
+                NavigationBar(
+                    containerColor = SurfaceDarkGray
+                ) {
+                    val navBackStackEntry by navController.currentBackStackEntryAsState()
+                    val currentDestination = navBackStackEntry?.destination
+                    bottomNavItems.forEach { screen ->
+                        NavigationBarItem(
+                            icon = { screen.icon() },
+                            label = { Text(screen.label) },
+                            selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
+                            onClick = {
+                                navController.navigate(screen.route) {
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            },
+                            colors = NavigationBarItemDefaults.colors(
+                                selectedIconColor = ElectricBlue,
+                                selectedTextColor = ElectricBlue,
+                                unselectedIconColor = TextSecondary,
+                                unselectedTextColor = TextSecondary,
+                                indicatorColor = CardBackground
+                            )
+                        )
+                    }
+                }
+            }
+        ) { innerPadding ->
+            NavHost(
+                navController,
+                startDestination = Screen.Dashboard.route,
+                Modifier.padding(innerPadding)
+            ) {
+                // New screens
+                composable(Screen.Dashboard.route) { DashboardScreen() }
+                composable(Screen.Network.route) { WifiScreen() } // Combined WiFi + Map
+                composable(Screen.Security.route) { FirewallScreen(navController) } // Combined Firewall + App Rules
+                composable(Screen.Activity.route) { LogScreen() } // Connection logs + analytics
+                
+                // Legacy routes
+                composable(Screen.Firewall.route) { FirewallScreen(navController) }
+                composable(Screen.AppRules.route) { AppListScreen() }
+                composable(Screen.ConnectionLog.route) { LogScreen() }
+                composable(Screen.Map.route) { MapScreen() }
+                composable(Screen.Wifi.route) { WifiScreen() }
+                composable(Screen.Settings.route) { SettingsScreen(navController) }
+                
+                // New feature screens
+                composable(Screen.Profile.route) { ProfileScreen() }
+                composable(Screen.NetworkManager.route) { NetworkManagerScreen() }
+            }
         }
     }
+}
+
+@Composable
+private fun NavigationDrawerContent(onNavigate: (String) -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(DeepNavy, SurfaceDarkGray)
+                )
+            )
+            .padding(vertical = 24.dp)
+    ) {
+        // Header with profile
+        DrawerHeader()
+        
+        Spacer(modifier = Modifier.height(24.dp))
+        
+        HorizontalDivider(color = CardBackground)
+        
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        // Navigation items
+        DrawerNavigationItem(
+            icon = Icons.Filled.Person,
+            label = "Profile Management",
+            onClick = { onNavigate(Screen.Profile.route) }
+        )
+        DrawerNavigationItem(
+            icon = Icons.Filled.Router,
+            label = "Network Manager",
+            onClick = { onNavigate(Screen.NetworkManager.route) }
+        )
+        DrawerNavigationItem(
+            icon = Icons.Filled.Settings,
+            label = "Settings & Preferences",
+            onClick = { onNavigate(Screen.Settings.route) }
+        )
+        DrawerNavigationItem(
+            icon = Icons.Filled.Help,
+            label = "Help & Documentation",
+            onClick = { /* TODO */ }
+        )
+        DrawerNavigationItem(
+            icon = Icons.Filled.Info,
+            label = "About",
+            onClick = { /* TODO */ }
+        )
+        
+        Spacer(modifier = Modifier.weight(1f))
+        
+        // Footer
+        Text(
+            text = "NetSentry v1.0",
+            style = MaterialTheme.typography.bodySmall,
+            color = TextTertiary,
+            modifier = Modifier.padding(horizontal = 28.dp)
+        )
+    }
+}
+
+@Composable
+private fun DrawerHeader() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 28.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        // Avatar
+        Box(
+            modifier = Modifier
+                .size(56.dp)
+                .clip(CircleShape)
+                .background(ElectricBlue),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                Icons.Filled.Person,
+                contentDescription = "Avatar",
+                modifier = Modifier.size(32.dp),
+                tint = TextPrimary
+            )
+        }
+        
+        Column {
+            Text(
+                text = "Admin User",
+                style = MaterialTheme.typography.titleMedium,
+                color = TextPrimary,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = "admin@example.com",
+                style = MaterialTheme.typography.bodySmall,
+                color = TextSecondary
+            )
+        }
+    }
+}
+
+@Composable
+private fun DrawerNavigationItem(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String,
+    onClick: () -> Unit
+) {
+    NavigationDrawerItem(
+        icon = { Icon(icon, contentDescription = null) },
+        label = { Text(label) },
+        selected = false,
+        onClick = onClick,
+        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+        colors = NavigationDrawerItemDefaults.colors(
+            unselectedContainerColor = androidx.compose.ui.graphics.Color.Transparent,
+            unselectedIconColor = TextSecondary,
+            unselectedTextColor = TextPrimary,
+            selectedContainerColor = CardBackground,
+            selectedIconColor = ElectricBlue,
+            selectedTextColor = ElectricBlue
+        )
+    )
 }
