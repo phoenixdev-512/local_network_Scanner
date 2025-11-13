@@ -66,3 +66,13 @@
 -keep class * extends androidx.work.ListenableWorker {
     public <init>(android.content.Context,androidx.work.WorkerParameters);
 }
+
+# DNSJava library rules
+-keep class org.xbill.DNS.** { *; }
+-dontwarn org.xbill.DNS.**
+-dontwarn sun.net.spi.nameservice.NameServiceDescriptor
+-keep class sun.net.spi.nameservice.** { *; }
+
+# SLF4J library rules
+-dontwarn org.slf4j.**
+-keep class org.slf4j.** { *; }

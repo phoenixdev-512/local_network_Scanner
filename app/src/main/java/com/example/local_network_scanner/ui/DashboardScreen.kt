@@ -123,7 +123,7 @@ private fun SpeedTestWidget(
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(
-                    progress = { (networkStats.downloadSpeed / 100f).coerceIn(0f, 1f) },
+                    progress = { (networkStats.downloadSpeed.toDouble() / 100.0).coerceIn(0.0, 1.0).toFloat() },
                     modifier = Modifier.fillMaxSize(),
                     color = ElectricBlue,
                     strokeWidth = 12.dp,

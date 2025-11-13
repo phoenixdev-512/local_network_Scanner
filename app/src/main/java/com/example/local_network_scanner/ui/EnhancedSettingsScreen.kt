@@ -117,7 +117,7 @@ fun EnhancedSettingsScreen(
                         ),
                         SettingItem.Navigation(
                             "DNS Provider",
-                            dnsSettings.provider,
+                            dnsSettings.dnsMode,
                             Icons.Filled.Dns,
                             {}
                         ),

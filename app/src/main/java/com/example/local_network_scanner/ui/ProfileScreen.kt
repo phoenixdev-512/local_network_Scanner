@@ -191,9 +191,9 @@ private fun AccountSection() {
     SettingsSection(
         title = "Account",
         items = listOf(
-            SettingItem("Personal Information", Icons.Filled.Person),
-            SettingItem("Change Password", Icons.Filled.Lock),
-            SettingItem("Email Preferences", Icons.Filled.Email)
+            ProfileSettingItem("Personal Information", Icons.Filled.Person),
+            ProfileSettingItem("Change Password", Icons.Filled.Lock),
+            ProfileSettingItem("Email Preferences", Icons.Filled.Email)
         )
     )
 }
@@ -203,9 +203,9 @@ private fun SecuritySection() {
     SettingsSection(
         title = "Security & Privacy",
         items = listOf(
-            SettingItem("VPN Auto-Start", Icons.Filled.VpnKey),
-            SettingItem("Default Blocking", Icons.Filled.Block),
-            SettingItem("Privacy Mode", Icons.Filled.PrivacyTip)
+            ProfileSettingItem("VPN Auto-Start", Icons.Filled.VpnKey),
+            ProfileSettingItem("Default Blocking", Icons.Filled.Block),
+            ProfileSettingItem("Privacy Mode", Icons.Filled.PrivacyTip)
         )
     )
 }
@@ -215,9 +215,9 @@ private fun NotificationSection() {
     SettingsSection(
         title = "Notifications",
         items = listOf(
-            SettingItem("Threat Alerts", Icons.Filled.Notifications),
-            SettingItem("Connection Logs", Icons.Filled.NotificationsActive),
-            SettingItem("Speed Test Reminders", Icons.Filled.Speed)
+            ProfileSettingItem("Threat Alerts", Icons.Filled.Notifications),
+            ProfileSettingItem("Connection Logs", Icons.Filled.NotificationsActive),
+            ProfileSettingItem("Speed Test Reminders", Icons.Filled.Speed)
         )
     )
 }
@@ -227,9 +227,9 @@ private fun AppearanceSection() {
     SettingsSection(
         title = "Appearance",
         items = listOf(
-            SettingItem("Theme Selection", Icons.Filled.Palette),
-            SettingItem("Color Accent", Icons.Filled.ColorLens),
-            SettingItem("Font Size", Icons.Filled.FormatSize)
+            ProfileSettingItem("Theme Selection", Icons.Filled.Palette),
+            ProfileSettingItem("Color Accent", Icons.Filled.ColorLens),
+            ProfileSettingItem("Font Size", Icons.Filled.FormatSize)
         )
     )
 }
@@ -239,16 +239,16 @@ private fun AdminToolsSection() {
     SettingsSection(
         title = "Admin Tools",
         items = listOf(
-            SettingItem("User Management", Icons.Filled.SupervisorAccount),
-            SettingItem("Global Policies", Icons.Filled.Policy),
-            SettingItem("Audit Logs", Icons.Filled.Assessment),
-            SettingItem("System Diagnostics", Icons.Filled.BugReport)
+            ProfileSettingItem("User Management", Icons.Filled.SupervisorAccount),
+            ProfileSettingItem("Global Policies", Icons.Filled.Policy),
+            ProfileSettingItem("Audit Logs", Icons.Filled.Assessment),
+            ProfileSettingItem("System Diagnostics", Icons.Filled.BugReport)
         )
     )
 }
 
 @Composable
-private fun SettingsSection(title: String, items: List<SettingItem>) {
+private fun SettingsSection(title: String, items: List<ProfileSettingItem>) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
@@ -282,7 +282,7 @@ private fun SettingsSection(title: String, items: List<SettingItem>) {
 }
 
 @Composable
-private fun SettingItemRow(item: SettingItem) {
+private fun SettingItemRow(item: ProfileSettingItem) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -313,7 +313,7 @@ private fun SettingItemRow(item: SettingItem) {
     }
 }
 
-private data class SettingItem(
+private data class ProfileSettingItem(
     val label: String,
     val icon: androidx.compose.ui.graphics.vector.ImageVector
 )
