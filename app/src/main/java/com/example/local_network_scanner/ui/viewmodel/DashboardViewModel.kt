@@ -2,6 +2,7 @@ package com.example.local_network_scanner.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.local_network_scanner.services.NetworkMonitor
 import com.example.local_network_scanner.ui.NetworkStats
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,7 +17,7 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
-    // TODO: Inject repositories when implementing data layer
+    private val networkMonitor: NetworkMonitor
 ) : ViewModel() {
     
     private val _isMonitoring = MutableStateFlow(false)
@@ -25,9 +26,16 @@ class DashboardViewModel @Inject constructor(
     private val _networkStats = MutableStateFlow(NetworkStats())
     val networkStats: StateFlow<NetworkStats> = _networkStats.asStateFlow()
     
+    // Real-time network metrics
+    val networkSpeed = networkMonitor.networkSpeed
+    val ping = networkMonitor.ping
+    
     init {
         // Initialize with default or mock data
         loadNetworkStats()
+        
+        // Start live monitoring
+        networkMonitor.startMonitoring()
     }
     
     private fun loadNetworkStats() {
@@ -49,15 +57,27 @@ class DashboardViewModel @Inject constructor(
     
     fun startMonitoring() {
         _isMonitoring.value = true
-        // TODO: Start actual network monitoring
+        networkMonitor.startMonitoring()
     }
     
     fun stopMonitoring() {
         _isMonitoring.value = false
-        // TODO: Stop network monitoring
+        networkMonitor.stopMonitoring()
     }
     
     fun refreshStats() {
         loadNetworkStats()
+    }
+    
+    fun triggerWiFiScan() {
+        // Trigger WiFi scan action
+        viewModelScope.launch {
+            // TODO: Implement actual WiFi scan trigger
+        }
+    }
+    
+    override fun onCleared() {
+        super.onCleared()
+        networkMonitor.stopMonitoring()
     }
 }

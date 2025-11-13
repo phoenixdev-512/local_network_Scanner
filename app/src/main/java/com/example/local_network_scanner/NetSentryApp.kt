@@ -127,7 +127,7 @@ fun NetSentryApp() {
                     route = Screen.Dashboard.route,
                     enterTransition = { fadeIn(animationSpec = tween(300)) + slideInHorizontally(animationSpec = tween(300)) { -it / 2 } },
                     exitTransition = { fadeOut(animationSpec = tween(300)) + slideOutHorizontally(animationSpec = tween(300)) { -it / 2 } }
-                ) { DashboardScreen() }
+                ) { DashboardScreen(navController = navController) }
                 
                 composable(
                     route = Screen.Network.route,
@@ -145,7 +145,7 @@ fun NetSentryApp() {
                     route = Screen.Activity.route,
                     enterTransition = { fadeIn(animationSpec = tween(300)) + slideInHorizontally(animationSpec = tween(300)) { it / 2 } },
                     exitTransition = { fadeOut(animationSpec = tween(300)) + slideOutHorizontally(animationSpec = tween(300)) { it / 2 } }
-                ) { LogScreen() } // Connection logs + analytics
+                ) { ActivityScreen() } // New Activity screen with 5-minute network stats
                 
                 // Legacy routes
                 composable(Screen.Firewall.route) { FirewallScreen(navController) }

@@ -1,6 +1,12 @@
 package com.example.local_network_scanner.ui
 
+import android.app.Activity
+import android.content.Intent
+import android.net.VpnService
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,6 +30,7 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -51,10 +58,23 @@ fun FirewallScreen(
     viewModel: MainViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    val isFirewallActive by viewModel.activeProfile.collectAsState()
+    val isVpnActive by viewModel.isVpnActive.collectAsState()
+    val isScanning by viewModel.isScanning.collectAsState()
+    val scanProgress by viewModel.scanProgress.collectAsState()
     val profiles by viewModel.profiles.collectAsState()
     val activeProfile by viewModel.activeProfile.collectAsState()
     var expanded by remember { mutableStateOf(false) }
+    
+    // VPN permission launcher
+    val vpnPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            viewModel.startVpn()
+        } else {
+            Toast.makeText(context, "VPN permission denied", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -113,34 +133,70 @@ fun FirewallScreen(
 
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    text = if (isFirewallActive != null) "PROTECTING: Your Wi-Fi" else "INACTIVE",
+                    text = if (isVpnActive) "PROTECTING: Your Network" else "INACTIVE",
                     style = MaterialTheme.typography.titleMedium,
-                    color = Color.White
+                    color = if (isVpnActive) Color(0xFF00C853) else Color.Gray
                 )
-                Spacer(modifier = Modifier.height(128.dp))
+                
+                // Scanning progress indicator
+                AnimatedVisibility(visible = isScanning) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.padding(vertical = 16.dp)
+                    ) {
+                        Text(
+                            text = "Scanning Network...",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.White
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        LinearProgressIndicator(
+                            progress = { scanProgress },
+                            modifier = Modifier
+                                .fillMaxWidth(0.6f)
+                                .height(4.dp),
+                            color = Color(0xFF00C853)
+                        )
+                        Text(
+                            text = "${(scanProgress * 100).toInt()}%",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.Gray
+                        )
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(if (isScanning) 32.dp else 128.dp))
+                
                 Button(
                     onClick = {
-                        if (isFirewallActive != null) {
+                        if (isVpnActive) {
                             viewModel.stopVpn()
                         } else {
-                            viewModel.startVpn()
+                            // Request VPN permission
+                            val intent = VpnService.prepare(context)
+                            if (intent != null) {
+                                vpnPermissionLauncher.launch(intent)
+                            } else {
+                                // Permission already granted
+                                viewModel.startVpn()
+                            }
                         }
                     },
                     modifier = Modifier.size(200.dp),
                     shape = CircleShape,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (isFirewallActive != null) Color.Red else Color(0xFF00C853)
+                        containerColor = if (isVpnActive) Color.Red else Color(0xFF00C853)
                     )
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Icon(
-                            imageVector = if (isFirewallActive != null) Icons.Default.Security else Icons.Default.PowerSettingsNew,
-                            contentDescription = if (isFirewallActive != null) "Stop Firewall" else "Start Firewall",
+                            imageVector = if (isVpnActive) Icons.Default.Security else Icons.Default.PowerSettingsNew,
+                            contentDescription = if (isVpnActive) "Stop VPN" else "Start VPN",
                             modifier = Modifier.size(80.dp),
                             tint = Color.White
                         )
                         Text(
-                            text = if (isFirewallActive != null) "STOP" else "START",
+                            text = if (isVpnActive) "STOP" else "START",
                             color = Color.White,
                             style = MaterialTheme.typography.titleLarge
                         )

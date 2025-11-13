@@ -1,10 +1,12 @@
 package com.example.local_network_scanner.ui
 
 import android.widget.Toast
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -12,12 +14,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.example.local_network_scanner.ui.theme.*
 import com.example.local_network_scanner.ui.viewmodel.DashboardViewModel
 
@@ -27,11 +31,14 @@ import com.example.local_network_scanner.ui.viewmodel.DashboardViewModel
  */
 @Composable
 fun DashboardScreen(
+    navController: NavController? = null,
     viewModel: DashboardViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val isMonitoring by viewModel.isMonitoring.collectAsState()
     val networkStats by viewModel.networkStats.collectAsState()
+    val networkSpeed by viewModel.networkSpeed.collectAsState()
+    val ping by viewModel.ping.collectAsState()
     
     Column(
         modifier = Modifier
@@ -51,11 +58,19 @@ fun DashboardScreen(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            item { SpeedTestWidget(isMonitoring, networkStats) }
+            item { 
+                SpeedTestWidget(
+                    isMonitoring = isMonitoring,
+                    networkStats = networkStats,
+                    downloadSpeed = networkSpeed.downloadMbps,
+                    uploadSpeed = networkSpeed.uploadMbps,
+                    ping = ping
+                ) 
+            }
             item { SecurityOverviewWidget(networkStats) }
             item { DataUsageWidget(networkStats) }
             item { ConnectedDevicesWidget(networkStats) }
-            item { QuickActionsWidget() }
+            item { QuickActionsWidget(navController, viewModel) }
         }
     }
 }
@@ -98,12 +113,15 @@ private fun DashboardHeader() {
 @Composable
 private fun SpeedTestWidget(
     isMonitoring: Boolean,
-    networkStats: NetworkStats
+    networkStats: NetworkStats,
+    downloadSpeed: Double,
+    uploadSpeed: Double,
+    ping: Int
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(280.dp),
+            .height(320.dp),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = SurfaceDarkGray)
     ) {
@@ -113,31 +131,54 @@ private fun SpeedTestWidget(
                 .padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = "Network Speed",
-                style = MaterialTheme.typography.titleLarge,
-                color = TextPrimary,
-                fontWeight = FontWeight.SemiBold
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Network Speed",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = TextPrimary,
+                    fontWeight = FontWeight.SemiBold
+                )
+                
+                // Live indicator
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    PulsingDot()
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        "LIVE",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = VibrантGreen
+                    )
+                }
+            }
             
             Spacer(modifier = Modifier.height(16.dp))
             
-            // Speed gauge (simplified circular progress indicator)
+            // Speed gauge with animated value
+            val animatedDownloadSpeed by animateFloatAsState(
+                targetValue = downloadSpeed.toFloat(),
+                animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing),
+                label = "downloadSpeed"
+            )
+            
             Box(
                 modifier = Modifier
-                    .size(140.dp),
+                    .size(160.dp),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(
-                    progress = { (networkStats.downloadSpeed.toDouble() / 100.0).coerceIn(0.0, 1.0).toFloat() },
+                    progress = { (animatedDownloadSpeed / 100.0).coerceIn(0.0, 1.0).toFloat() },
                     modifier = Modifier.fillMaxSize(),
                     color = ElectricBlue,
-                    strokeWidth = 12.dp,
+                    strokeWidth = 14.dp,
                     trackColor = CardBackground,
                 )
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        text = "%.1f".format(networkStats.downloadSpeed),
+                        text = "%.2f".format(animatedDownloadSpeed),
                         style = MaterialTheme.typography.displaySmall,
                         color = TextPrimary,
                         fontWeight = FontWeight.Bold
@@ -152,27 +193,74 @@ private fun SpeedTestWidget(
             
             Spacer(modifier = Modifier.height(16.dp))
             
-            // Upload/Download/Ping row
+            // Upload/Download/Ping row with live updates
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                MetricItem("Download", "%.1f Mbps".format(networkStats.downloadSpeed), VibrантGreen)
-                MetricItem("Upload", "%.1f Mbps".format(networkStats.uploadSpeed), InfoCyan)
-                MetricItem("Ping", "${networkStats.ping} ms", WarningOrange)
+                AnimatedMetricItem(
+                    label = "Download",
+                    value = downloadSpeed,
+                    unit = "Mbps",
+                    color = VibrантGreen,
+                    icon = Icons.Default.ArrowDownward
+                )
+                AnimatedMetricItem(
+                    label = "Upload",
+                    value = uploadSpeed,
+                    unit = "Mbps",
+                    color = InfoCyan,
+                    icon = Icons.Default.ArrowUpward
+                )
+                AnimatedMetricItem(
+                    label = "Ping",
+                    value = ping.toDouble(),
+                    unit = "ms",
+                    color = when {
+                        ping < 0 -> Color.Gray
+                        ping < 50 -> VibrантGreen
+                        ping < 100 -> WarningOrange
+                        else -> ThreatRed
+                    },
+                    icon = Icons.Default.Speed
+                )
             }
         }
     }
 }
 
 @Composable
-private fun MetricItem(label: String, value: String, color: Color) {
+private fun AnimatedMetricItem(
+    label: String,
+    value: Double,
+    unit: String,
+    color: Color,
+    icon: androidx.compose.ui.graphics.vector.ImageVector
+) {
+    val animatedValue by animateFloatAsState(
+        targetValue = value.toFloat(),
+        animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing),
+        label = "metricValue"
+    )
+    
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = color,
+            modifier = Modifier.size(20.dp)
+        )
+        Spacer(modifier = Modifier.height(4.dp))
         Text(
-            text = value,
+            text = if (value < 1) "%.2f".format(animatedValue) else "%.1f".format(animatedValue),
             style = MaterialTheme.typography.titleMedium,
             color = color,
             fontWeight = FontWeight.SemiBold
+        )
+        Text(
+            text = unit,
+            style = MaterialTheme.typography.bodySmall,
+            color = TextTertiary
         )
         Text(
             text = label,
@@ -180,6 +268,27 @@ private fun MetricItem(label: String, value: String, color: Color) {
             color = TextSecondary
         )
     }
+}
+
+@Composable
+fun PulsingDot() {
+    val infiniteTransition = rememberInfiniteTransition(label = "pulsing")
+    val alpha by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 0.3f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(800),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "alpha"
+    )
+    
+    Box(
+        modifier = Modifier
+            .size(8.dp)
+            .alpha(alpha)
+            .background(VibrантGreen, CircleShape)
+    )
 }
 
 @Composable
@@ -350,7 +459,7 @@ private fun ConnectedDevicesWidget(networkStats: NetworkStats) {
 }
 
 @Composable
-private fun QuickActionsWidget() {
+private fun QuickActionsWidget(navController: NavController?, viewModel: DashboardViewModel) {
     val context = LocalContext.current
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -376,24 +485,25 @@ private fun QuickActionsWidget() {
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 QuickActionButton(
-                    icon = Icons.Filled.NetworkCheck,
+                    icon = Icons.Filled.Wifi,
                     label = "Scan Network",
                     onClick = { 
-                        Toast.makeText(context, "Network Scan - Under Development", Toast.LENGTH_SHORT).show()
+                        navController?.navigate("network")
+                        viewModel.triggerWiFiScan()
                     }
                 )
                 QuickActionButton(
                     icon = Icons.Filled.Block,
                     label = "Block App",
                     onClick = { 
-                        Toast.makeText(context, "Block App - Under Development", Toast.LENGTH_SHORT).show()
+                        navController?.navigate("security")
                     }
                 )
                 QuickActionButton(
                     icon = Icons.Filled.History,
                     label = "View Logs",
                     onClick = { 
-                        Toast.makeText(context, "View Logs - Under Development", Toast.LENGTH_SHORT).show()
+                        navController?.navigate("activity")
                     }
                 )
             }
