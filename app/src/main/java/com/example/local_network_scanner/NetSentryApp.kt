@@ -1,5 +1,7 @@
 package com.example.local_network_scanner
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -118,11 +120,30 @@ fun NetSentryApp() {
                 startDestination = Screen.Dashboard.route,
                 Modifier.padding(innerPadding)
             ) {
-                // New screens
-                composable(Screen.Dashboard.route) { DashboardScreen() }
-                composable(Screen.Network.route) { WifiScreen() } // Combined WiFi + Map
-                composable(Screen.Security.route) { FirewallScreen(navController) } // Combined Firewall + App Rules
-                composable(Screen.Activity.route) { LogScreen() } // Connection logs + analytics
+                // New screens with animations
+                composable(
+                    route = Screen.Dashboard.route,
+                    enterTransition = { fadeIn(animationSpec = tween(300)) + slideInHorizontally(animationSpec = tween(300)) { -it / 2 } },
+                    exitTransition = { fadeOut(animationSpec = tween(300)) + slideOutHorizontally(animationSpec = tween(300)) { -it / 2 } }
+                ) { DashboardScreen() }
+                
+                composable(
+                    route = Screen.Network.route,
+                    enterTransition = { fadeIn(animationSpec = tween(300)) + slideInHorizontally(animationSpec = tween(300)) { it / 2 } },
+                    exitTransition = { fadeOut(animationSpec = tween(300)) + slideOutHorizontally(animationSpec = tween(300)) { it / 2 } }
+                ) { WifiScreen() } // Combined WiFi + Map
+                
+                composable(
+                    route = Screen.Security.route,
+                    enterTransition = { fadeIn(animationSpec = tween(300)) + slideInHorizontally(animationSpec = tween(300)) { it / 2 } },
+                    exitTransition = { fadeOut(animationSpec = tween(300)) + slideOutHorizontally(animationSpec = tween(300)) { it / 2 } }
+                ) { FirewallScreen(navController) } // Combined Firewall + App Rules
+                
+                composable(
+                    route = Screen.Activity.route,
+                    enterTransition = { fadeIn(animationSpec = tween(300)) + slideInHorizontally(animationSpec = tween(300)) { it / 2 } },
+                    exitTransition = { fadeOut(animationSpec = tween(300)) + slideOutHorizontally(animationSpec = tween(300)) { it / 2 } }
+                ) { LogScreen() } // Connection logs + analytics
                 
                 // Legacy routes
                 composable(Screen.Firewall.route) { FirewallScreen(navController) }
@@ -132,9 +153,18 @@ fun NetSentryApp() {
                 composable(Screen.Wifi.route) { WifiScreen() }
                 composable(Screen.Settings.route) { SettingsScreen(navController) }
                 
-                // New feature screens
-                composable(Screen.Profile.route) { ProfileScreen() }
-                composable(Screen.NetworkManager.route) { NetworkManagerScreen() }
+                // New feature screens with slide transitions
+                composable(
+                    route = Screen.Profile.route,
+                    enterTransition = { slideInHorizontally(animationSpec = tween(400)) { it } + fadeIn(animationSpec = tween(400)) },
+                    exitTransition = { slideOutHorizontally(animationSpec = tween(400)) { it } + fadeOut(animationSpec = tween(400)) }
+                ) { ProfileScreen() }
+                
+                composable(
+                    route = Screen.NetworkManager.route,
+                    enterTransition = { slideInHorizontally(animationSpec = tween(400)) { it } + fadeIn(animationSpec = tween(400)) },
+                    exitTransition = { slideOutHorizontally(animationSpec = tween(400)) { it } + fadeOut(animationSpec = tween(400)) }
+                ) { NetworkManagerScreen() }
             }
         }
     }

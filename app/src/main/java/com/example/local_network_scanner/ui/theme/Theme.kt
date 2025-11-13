@@ -9,35 +9,88 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+// Speedtest-inspired Dark Color Scheme
+private val SpeedtestDarkColorScheme = darkColorScheme(
+    primary = ElectricBlue,
+    onPrimary = TextPrimary,
+    primaryContainer = DeepNavy,
+    onPrimaryContainer = TextPrimary,
+    
+    secondary = InfoCyan,
+    onSecondary = TrueBlack,
+    secondaryContainer = CardBackground,
+    onSecondaryContainer = TextPrimary,
+    
+    tertiary = VibrантGreen,
+    onTertiary = TrueBlack,
+    tertiaryContainer = CardBackground,
+    onTertiaryContainer = TextPrimary,
+    
+    error = ThreatRed,
+    onError = TextPrimary,
+    errorContainer = ThreatRed.copy(alpha = 0.2f),
+    onErrorContainer = ThreatRed,
+    
+    background = TrueBlack,
+    onBackground = TextPrimary,
+    
+    surface = SurfaceDarkGray,
+    onSurface = TextPrimary,
+    surfaceVariant = CardBackground,
+    onSurfaceVariant = TextSecondary,
+    
+    outline = TextTertiary,
+    outlineVariant = CardBackground,
+    
+    inverseSurface = TextPrimary,
+    inverseOnSurface = TrueBlack,
+    inversePrimary = DeepNavy,
 )
 
-private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+// Light Color Scheme (for future use)
+private val SpeedtestLightColorScheme = lightColorScheme(
+    primary = ElectricBlue,
+    onPrimary = TextPrimary,
+    primaryContainer = ElectricBlue.copy(alpha = 0.1f),
+    onPrimaryContainer = DeepNavy,
+    
+    secondary = InfoCyan,
+    onSecondary = TextPrimary,
+    secondaryContainer = InfoCyan.copy(alpha = 0.1f),
+    onSecondaryContainer = DeepNavy,
+    
+    tertiary = VibrантGreen,
+    onTertiary = TextPrimary,
+    tertiaryContainer = VibrантGreen.copy(alpha = 0.1f),
+    onTertiaryContainer = DeepNavy,
+    
+    error = ThreatRed,
+    onError = TextPrimary,
+    errorContainer = ThreatRed.copy(alpha = 0.1f),
+    onErrorContainer = ThreatRed,
+    
+    background = androidx.compose.ui.graphics.Color.White,
+    onBackground = DeepNavy,
+    
+    surface = androidx.compose.ui.graphics.Color.White,
+    onSurface = DeepNavy,
+    surfaceVariant = androidx.compose.ui.graphics.Color(0xFFF5F5F5),
+    onSurfaceVariant = TextTertiary,
+    
+    outline = TextTertiary,
 )
 
 @Composable
 fun NetSentryTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    darkTheme: Boolean = true, // Always use dark theme for Speedtest-inspired design
+    // Dynamic color disabled to use custom Speedtest palette
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
@@ -45,9 +98,18 @@ fun NetSentryTheme(
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
-
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+        darkTheme -> SpeedtestDarkColorScheme
+        else -> SpeedtestLightColorScheme
+    }
+    
+    val view = LocalView.current
+    if (!view.isInEditMode) {
+        SideEffect {
+            val window = (view.context as Activity).window
+            window.statusBarColor = TrueBlack.toArgb()
+            window.navigationBarColor = SurfaceDarkGray.toArgb()
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
+        }
     }
 
     MaterialTheme(
