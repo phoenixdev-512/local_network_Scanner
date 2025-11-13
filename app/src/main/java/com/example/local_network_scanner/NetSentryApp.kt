@@ -1,5 +1,6 @@
 package com.example.local_network_scanner
 
+import android.widget.Toast
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -15,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -172,6 +174,7 @@ fun NetSentryApp() {
 
 @Composable
 private fun NavigationDrawerContent(onNavigate: (String) -> Unit) {
+    val context = LocalContext.current
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -210,12 +213,16 @@ private fun NavigationDrawerContent(onNavigate: (String) -> Unit) {
         DrawerNavigationItem(
             icon = Icons.Filled.Help,
             label = "Help & Documentation",
-            onClick = { /* TODO */ }
+            onClick = { 
+                Toast.makeText(context, "Help & Documentation - Under Development", Toast.LENGTH_SHORT).show()
+            }
         )
         DrawerNavigationItem(
             icon = Icons.Filled.Info,
             label = "About",
-            onClick = { /* TODO */ }
+            onClick = { 
+                Toast.makeText(context, "About - Under Development", Toast.LENGTH_SHORT).show()
+            }
         )
         
         Spacer(modifier = Modifier.weight(1f))

@@ -1,5 +1,6 @@
 package com.example.local_network_scanner.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -36,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -48,6 +50,7 @@ fun FirewallScreen(
     navController: NavController,
     viewModel: MainViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     val isFirewallActive by viewModel.activeProfile.collectAsState()
     val profiles by viewModel.profiles.collectAsState()
     val activeProfile by viewModel.activeProfile.collectAsState()
@@ -100,7 +103,10 @@ fun FirewallScreen(
                     }
                     DropdownMenuItem(
                         text = { Text("Add new profile...") },
-                        onClick = { /* TODO: Show dialog to add new profile */ }
+                        onClick = { 
+                            Toast.makeText(context, "Add Profile - Under Development", Toast.LENGTH_SHORT).show()
+                            expanded = false
+                        }
                     )
                 }
             }

@@ -1,5 +1,6 @@
 package com.example.local_network_scanner.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -29,6 +31,7 @@ import com.example.local_network_scanner.ui.viewmodel.ProfileViewModel
 fun ProfileScreen(
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     val currentProfile by viewModel.currentProfile.collectAsState()
     
     Column(
@@ -47,7 +50,9 @@ fun ProfileScreen(
                 containerColor = androidx.compose.ui.graphics.Color.Transparent
             ),
             actions = {
-                IconButton(onClick = { /* Edit profile */ }) {
+                IconButton(onClick = { 
+                    Toast.makeText(context, "Edit Profile - Under Development", Toast.LENGTH_SHORT).show()
+                }) {
                     Icon(Icons.Filled.Edit, contentDescription = "Edit", tint = TextPrimary)
                 }
             }
@@ -75,6 +80,7 @@ fun ProfileScreen(
 
 @Composable
 private fun ProfileHeader(name: String, email: String, role: UserRole) {
+    val context = LocalContext.current
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
@@ -121,7 +127,9 @@ private fun ProfileHeader(name: String, email: String, role: UserRole) {
             
             // Role badge
             AssistChip(
-                onClick = { },
+                onClick = { 
+                    Toast.makeText(context, "Role Management - Under Development", Toast.LENGTH_SHORT).show()
+                },
                 label = {
                     Text(
                         text = role.name,

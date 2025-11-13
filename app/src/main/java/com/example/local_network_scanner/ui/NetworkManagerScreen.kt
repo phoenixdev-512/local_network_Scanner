@@ -1,5 +1,6 @@
 package com.example.local_network_scanner.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -12,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -27,6 +29,7 @@ import com.example.local_network_scanner.ui.viewmodel.NetworkManagerViewModel
 fun NetworkManagerScreen(
     viewModel: NetworkManagerViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     var selectedTab by remember { mutableStateOf(0) }
     val savedNetworks by viewModel.savedNetworks.collectAsState()
     val policies by viewModel.policies.collectAsState()
@@ -47,7 +50,9 @@ fun NetworkManagerScreen(
                 containerColor = androidx.compose.ui.graphics.Color.Transparent
             ),
             actions = {
-                IconButton(onClick = { /* Add network */ }) {
+                IconButton(onClick = { 
+                    Toast.makeText(context, "Add Network - Under Development", Toast.LENGTH_SHORT).show()
+                }) {
                     Icon(Icons.Filled.Add, contentDescription = "Add", tint = TextPrimary)
                 }
             }
@@ -194,6 +199,7 @@ private fun NetworkPoliciesTab(policies: List<PolicyDisplay>) {
 
 @Composable
 private fun PolicyCard(policy: PolicyDisplay) {
+    val context = LocalContext.current
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -233,7 +239,9 @@ private fun PolicyCard(policy: PolicyDisplay) {
                         )
                     }
                 }
-                IconButton(onClick = { /* Edit policy */ }) {
+                IconButton(onClick = { 
+                    Toast.makeText(context, "Edit Policy - Under Development", Toast.LENGTH_SHORT).show()
+                }) {
                     Icon(
                         Icons.Filled.Edit,
                         contentDescription = "Edit",
@@ -250,7 +258,9 @@ private fun PolicyCard(policy: PolicyDisplay) {
             ) {
                 if (policy.enableAdBlocking) {
                     AssistChip(
-                        onClick = { },
+                        onClick = { 
+                            Toast.makeText(context, "Ad Blocking Configuration - Under Development", Toast.LENGTH_SHORT).show()
+                        },
                         label = { Text("Ad Blocking", style = MaterialTheme.typography.labelSmall) },
                         colors = AssistChipDefaults.assistChipColors(
                             containerColor = VibrантGreen.copy(alpha = 0.2f),
@@ -260,7 +270,9 @@ private fun PolicyCard(policy: PolicyDisplay) {
                 }
                 if (policy.enableMalwareProtection) {
                     AssistChip(
-                        onClick = { },
+                        onClick = { 
+                            Toast.makeText(context, "Malware Protection Settings - Under Development", Toast.LENGTH_SHORT).show()
+                        },
                         label = { Text("Malware Protection", style = MaterialTheme.typography.labelSmall) },
                         colors = AssistChipDefaults.assistChipColors(
                             containerColor = ElectricBlue.copy(alpha = 0.2f),

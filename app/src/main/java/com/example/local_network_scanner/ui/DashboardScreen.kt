@@ -1,5 +1,6 @@
 package com.example.local_network_scanner.ui
 
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -13,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -27,6 +29,7 @@ import com.example.local_network_scanner.ui.viewmodel.DashboardViewModel
 fun DashboardScreen(
     viewModel: DashboardViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     val isMonitoring by viewModel.isMonitoring.collectAsState()
     val networkStats by viewModel.networkStats.collectAsState()
     
@@ -59,6 +62,7 @@ fun DashboardScreen(
 
 @Composable
 private fun DashboardHeader() {
+    val context = LocalContext.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -79,7 +83,9 @@ private fun DashboardHeader() {
                 color = TextSecondary
             )
         }
-        IconButton(onClick = { /* Settings */ }) {
+        IconButton(onClick = { 
+            Toast.makeText(context, "Settings - Under Development", Toast.LENGTH_SHORT).show()
+        }) {
             Icon(
                 Icons.Filled.Settings,
                 contentDescription = "Settings",
@@ -345,6 +351,7 @@ private fun ConnectedDevicesWidget(networkStats: NetworkStats) {
 
 @Composable
 private fun QuickActionsWidget() {
+    val context = LocalContext.current
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
@@ -371,17 +378,23 @@ private fun QuickActionsWidget() {
                 QuickActionButton(
                     icon = Icons.Filled.NetworkCheck,
                     label = "Scan Network",
-                    onClick = { /* TODO */ }
+                    onClick = { 
+                        Toast.makeText(context, "Network Scan - Under Development", Toast.LENGTH_SHORT).show()
+                    }
                 )
                 QuickActionButton(
                     icon = Icons.Filled.Block,
                     label = "Block App",
-                    onClick = { /* TODO */ }
+                    onClick = { 
+                        Toast.makeText(context, "Block App - Under Development", Toast.LENGTH_SHORT).show()
+                    }
                 )
                 QuickActionButton(
                     icon = Icons.Filled.History,
                     label = "View Logs",
-                    onClick = { /* TODO */ }
+                    onClick = { 
+                        Toast.makeText(context, "View Logs - Under Development", Toast.LENGTH_SHORT).show()
+                    }
                 )
             }
         }
