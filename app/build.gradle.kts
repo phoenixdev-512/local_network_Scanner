@@ -102,6 +102,11 @@ dependencies {
     implementation("androidx.hilt:hilt-work:1.1.0")
     kapt("androidx.hilt:hilt-compiler:1.1.0")
 
+    // Enhanced UI dependencies
+    implementation("androidx.compose.animation:animation:1.6.0")
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")
+    implementation("io.coil-kt:coil-compose:2.5.0") // For avatar images
+
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
