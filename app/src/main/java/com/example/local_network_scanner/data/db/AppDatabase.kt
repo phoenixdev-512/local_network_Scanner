@@ -1,0 +1,17 @@
+package com.example.local_network_scanner.data.db
+
+import androidx.room.Database
+import androidx.room.RoomDatabase
+
+@Database(
+    entities = [LogEntry::class, Profile::class, ProfileRule::class, AppUsageDaily::class, DailyStats::class, BlocklistEntry::class],
+    version = 5,
+    exportSchema = false
+)
+abstract class AppDatabase : RoomDatabase() {
+    abstract fun logDao(): LogDao
+    abstract fun profileDao(): ProfileDao
+    abstract fun appUsageDao(): AppUsageDao
+    abstract fun dailyStatsDao(): DailyStatsDao
+    abstract fun blocklistDao(): BlocklistDao
+}
