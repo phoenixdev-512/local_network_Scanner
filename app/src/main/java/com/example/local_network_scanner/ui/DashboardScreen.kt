@@ -122,14 +122,15 @@ private fun SpeedTestWidget(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(320.dp),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceDarkGray)
+            .height(340.dp),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = SurfaceDarkGray),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(20.dp),
+                .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(
@@ -144,57 +145,70 @@ private fun SpeedTestWidget(
                     fontWeight = FontWeight.SemiBold
                 )
                 
-                // Live indicator
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                // Live indicator with enhanced animation
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .background(
+                            color = VibrантGreen.copy(alpha = 0.1f),
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                ) {
                     PulsingDot()
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         "LIVE",
                         style = MaterialTheme.typography.labelSmall,
-                        color = VibrантGreen
+                        color = VibrантGreen,
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }
             
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(20.dp))
             
-            // Speed gauge with animated value
+            // Speed gauge with enhanced animated value
             val animatedDownloadSpeed by animateFloatAsState(
                 targetValue = downloadSpeed.toFloat(),
-                animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing),
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessLow
+                ),
                 label = "downloadSpeed"
             )
             
             Box(
                 modifier = Modifier
-                    .size(160.dp),
+                    .size(170.dp),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(
                     progress = { (animatedDownloadSpeed / 100.0).coerceIn(0.0, 1.0).toFloat() },
                     modifier = Modifier.fillMaxSize(),
                     color = ElectricBlue,
-                    strokeWidth = 14.dp,
+                    strokeWidth = 16.dp,
                     trackColor = CardBackground,
                 )
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
                         text = "%.2f".format(animatedDownloadSpeed),
-                        style = MaterialTheme.typography.displaySmall,
+                        style = MaterialTheme.typography.displayMedium,
                         color = TextPrimary,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
                         text = "Mbps",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = TextSecondary
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = TextSecondary,
+                        fontWeight = FontWeight.Medium
                     )
                 }
             }
             
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(20.dp))
             
-            // Upload/Download/Ping row with live updates
+            // Upload/Download/Ping row with enhanced live updates
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
@@ -294,15 +308,29 @@ fun PulsingDot() {
 
 @Composable
 private fun SecurityOverviewWidget(networkStats: NetworkStats) {
+    val securityScore = networkStats.securityScore
+    val scoreColor = when {
+        securityScore >= 80 -> VibrантGreen
+        securityScore >= 60 -> WarningOrange
+        else -> ThreatRed
+    }
+    
+    val scoreStatus = when {
+        securityScore >= 80 -> "Secure"
+        securityScore >= 60 -> "Moderate"
+        else -> "At Risk"
+    }
+    
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceDarkGray)
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = SurfaceDarkGray),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(20.dp)
+                .padding(24.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -318,20 +346,59 @@ private fun SecurityOverviewWidget(networkStats: NetworkStats) {
                 Icon(
                     Icons.Filled.Security,
                     contentDescription = null,
-                    tint = VibrантGreen
+                    tint = scoreColor,
+                    modifier = Modifier.size(28.dp)
+                )
+            }
+            
+            Spacer(modifier = Modifier.height(20.dp))
+            
+            // Security Score with color coding and animation
+            val animatedScore by animateIntAsState(
+                targetValue = securityScore,
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessLow
+                ),
+                label = "securityScore"
+            )
+            
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(
+                        text = "Security Score",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = TextSecondary,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = scoreStatus,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = scoreColor,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+                Text(
+                    text = "$animatedScore/100",
+                    style = MaterialTheme.typography.displaySmall,
+                    color = scoreColor,
+                    fontWeight = FontWeight.Bold
                 )
             }
             
             Spacer(modifier = Modifier.height(16.dp))
             
-            // Security metrics
+            // Security metrics with enhanced spacing
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 SecurityMetric("Threats Blocked", networkStats.threatsBlocked.toString(), ThreatRed)
                 SecurityMetric("Active Connections", networkStats.activeConnections.toString(), ElectricBlue)
-                SecurityMetric("Security Score", "${networkStats.securityScore}/100", VibrантGreen)
             }
         }
     }
@@ -358,13 +425,14 @@ private fun SecurityMetric(label: String, value: String, color: Color) {
 private fun DataUsageWidget(networkStats: NetworkStats) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceDarkGray)
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = SurfaceDarkGray),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(20.dp)
+                .padding(24.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -380,23 +448,30 @@ private fun DataUsageWidget(networkStats: NetworkStats) {
                 Icon(
                     Icons.Filled.DataUsage,
                     contentDescription = null,
-                    tint = InfoCyan
+                    tint = InfoCyan,
+                    modifier = Modifier.size(28.dp)
                 )
             }
             
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(20.dp))
             
-            // Data usage bar
+            // Data usage bar with animation
+            val animatedProgress by animateFloatAsState(
+                targetValue = (networkStats.dataUsedMB / networkStats.dataTotalMB).coerceIn(0f, 1f),
+                animationSpec = tween(durationMillis = 800, easing = FastOutSlowInEasing),
+                label = "dataProgress"
+            )
+            
             LinearProgressIndicator(
-                progress = { (networkStats.dataUsedMB / networkStats.dataTotalMB).coerceIn(0f, 1f) },
+                progress = { animatedProgress },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(12.dp),
+                    .height(14.dp),
                 color = ElectricBlue,
                 trackColor = CardBackground,
             )
             
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
             
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -405,12 +480,14 @@ private fun DataUsageWidget(networkStats: NetworkStats) {
                 Text(
                     text = "%.2f MB used".format(networkStats.dataUsedMB),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = TextSecondary
+                    color = TextSecondary,
+                    fontWeight = FontWeight.Medium
                 )
                 Text(
                     text = "%.2f MB total".format(networkStats.dataTotalMB),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = TextSecondary
+                    color = TextSecondary,
+                    fontWeight = FontWeight.Medium
                 )
             }
         }
@@ -419,41 +496,79 @@ private fun DataUsageWidget(networkStats: NetworkStats) {
 
 @Composable
 private fun ConnectedDevicesWidget(networkStats: NetworkStats) {
+    val context = LocalContext.current
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceDarkGray)
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = SurfaceDarkGray),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(20.dp)
+                .padding(24.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "Connected Devices",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = TextPrimary,
-                    fontWeight = FontWeight.SemiBold
+                Column {
+                    Text(
+                        text = "Connected Devices",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = TextPrimary,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = "On your local network",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = TextTertiary
+                    )
+                }
+                
+                // Prominent device count with animation
+                val animatedCount by animateIntAsState(
+                    targetValue = networkStats.connectedDevices,
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                        stiffness = Spring.StiffnessLow
+                    ),
+                    label = "deviceCount"
                 )
-                Text(
-                    text = networkStats.connectedDevices.toString(),
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = ElectricBlue,
-                    fontWeight = FontWeight.Bold
-                )
+                
+                Box(
+                    modifier = Modifier
+                        .size(90.dp)
+                        .background(
+                            brush = Brush.radialGradient(
+                                colors = listOf(
+                                    ElectricBlue.copy(alpha = 0.25f),
+                                    ElectricBlue.copy(alpha = 0.05f),
+                                    androidx.compose.ui.graphics.Color.Transparent
+                                )
+                            ),
+                            shape = CircleShape
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = animatedCount.toString(),
+                        style = MaterialTheme.typography.displayLarge,
+                        color = ElectricBlue,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
             
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(16.dp))
             
             Text(
                 text = "Tap to view detailed device information",
-                style = MaterialTheme.typography.bodySmall,
-                color = TextTertiary
+                style = MaterialTheme.typography.bodyMedium,
+                color = TextTertiary,
+                modifier = Modifier.fillMaxWidth()
             )
         }
     }
@@ -464,13 +579,14 @@ private fun QuickActionsWidget(navController: NavController?, viewModel: Dashboa
     val context = LocalContext.current
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceDarkGray)
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = SurfaceDarkGray),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(20.dp)
+                .padding(24.dp)
         ) {
             Text(
                 text = "Quick Actions",
@@ -479,7 +595,7 @@ private fun QuickActionsWidget(navController: NavController?, viewModel: Dashboa
                 fontWeight = FontWeight.SemiBold
             )
             
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(20.dp))
             
             Row(
                 modifier = Modifier.fillMaxWidth(),
