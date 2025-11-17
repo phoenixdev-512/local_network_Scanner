@@ -33,6 +33,29 @@ fun ActivityScreen(viewModel: ActivityViewModel = hiltViewModel()) {
     val dataUsageStats by viewModel.dataUsageStats.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     
+    var searchQuery by remember { mutableStateOf("") }
+    var sortBy by remember { mutableStateOf(ActivitySortOption.DATA_USAGE) }
+    
+    // Apply filtering and sorting
+    val processedActivity = remember(recentActivity, searchQuery, sortBy) {
+        var filtered = recentActivity
+        
+        // Apply search filter
+        if (searchQuery.isNotEmpty()) {
+            filtered = filtered.filter {
+                it.appName.contains(searchQuery, ignoreCase = true) ||
+                it.packageName.contains(searchQuery, ignoreCase = true)
+            }
+        }
+        
+        // Apply sorting
+        when (sortBy) {
+            ActivitySortOption.DATA_USAGE -> filtered.sortedByDescending { it.uploadBytes + it.downloadBytes }
+            ActivitySortOption.APP_NAME -> filtered.sortedBy { it.appName }
+            ActivitySortOption.CONNECTIONS -> filtered.sortedByDescending { it.connectionCount }
+        }
+    }
+    
     Scaffold(
         topBar = {
             TopAppBar(
@@ -68,6 +91,14 @@ fun ActivityScreen(viewModel: ActivityViewModel = hiltViewModel()) {
                     // Time Range Header
                     TimeRangeHeader()
                     
+                    // Search and Filter
+                    SearchAndFilterSection(
+                        searchQuery = searchQuery,
+                        onSearchChange = { searchQuery = it },
+                        sortBy = sortBy,
+                        onSortChange = { sortBy = it }
+                    )
+                    
                     // Data Usage Summary Card
                     DataUsageSummaryCard(
                         totalUpload = dataUsageStats.totalUpload,
@@ -81,8 +112,14 @@ fun ActivityScreen(viewModel: ActivityViewModel = hiltViewModel()) {
                         contentPadding = PaddingValues(AppSpacing.medium),
                         verticalArrangement = Arrangement.spacedBy(AppSpacing.small)
                     ) {
-                        items(recentActivity) { appActivity ->
+                        items(processedActivity) { appActivity ->
                             AppActivityCard(appActivity)
+                        }
+                        
+                        if (processedActivity.isEmpty()) {
+                            item {
+                                EmptyActivityCard()
+                            }
                         }
                     }
                 }
@@ -302,4 +339,116 @@ fun AppActivityCard(activity: AppNetworkActivity) {
             }
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SearchAndFilterSection(
+    searchQuery: String,
+    onSearchChange: (String) -> Unit,
+    sortBy: ActivitySortOption,
+    onSortChange: (ActivitySortOption) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = AppSpacing.medium, vertical = AppSpacing.small)
+    ) {
+        // Search bar
+        TextField(
+            value = searchQuery,
+            onValueChange = onSearchChange,
+            modifier = Modifier.fillMaxWidth(),
+            placeholder = { Text("Search apps...") },
+            leadingIcon = {
+                Icon(Icons.Default.Search, contentDescription = null)
+            },
+            trailingIcon = {
+                if (searchQuery.isNotEmpty()) {
+                    IconButton(onClick = { onSearchChange("") }) {
+                        Icon(Icons.Default.Clear, contentDescription = "Clear")
+                    }
+                }
+            },
+            singleLine = true,
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
+            )
+        )
+        
+        Spacer(modifier = Modifier.height(AppSpacing.small))
+        
+        // Sort chips
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            FilterChip(
+                selected = sortBy == ActivitySortOption.DATA_USAGE,
+                onClick = { onSortChange(ActivitySortOption.DATA_USAGE) },
+                label = { Text("Data Usage") }
+            )
+            FilterChip(
+                selected = sortBy == ActivitySortOption.APP_NAME,
+                onClick = { onSortChange(ActivitySortOption.APP_NAME) },
+                label = { Text("Name") }
+            )
+            FilterChip(
+                selected = sortBy == ActivitySortOption.CONNECTIONS,
+                onClick = { onSortChange(ActivitySortOption.CONNECTIONS) },
+                label = { Text("Connections") }
+            )
+        }
+    }
+}
+
+@Composable
+private fun EmptyActivityCard() {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(AppSpacing.medium),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(
+                Icons.Default.SignalCellularOff,
+                contentDescription = null,
+                modifier = Modifier.size(64.dp),
+                tint = Color.Gray
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "No Activity Found",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "No apps match your search",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.Gray,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+            )
+        }
+    }
+}
+
+fun formatBytes(bytes: Long): String {
+    return when {
+        bytes < 1024 -> "$bytes B"
+        bytes < 1024 * 1024 -> "${bytes / 1024} KB"
+        bytes < 1024 * 1024 * 1024 -> "${bytes / (1024 * 1024)} MB"
+        else -> "${bytes / (1024 * 1024 * 1024)} GB"
+    }
+}
+
+enum class ActivitySortOption {
+    DATA_USAGE, APP_NAME, CONNECTIONS
 }
