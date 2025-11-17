@@ -294,6 +294,19 @@ fun PulsingDot() {
 
 @Composable
 private fun SecurityOverviewWidget(networkStats: NetworkStats) {
+    val securityScore = networkStats.securityScore
+    val scoreColor = when {
+        securityScore >= 80 -> VibrантGreen
+        securityScore >= 60 -> WarningOrange
+        else -> ThreatRed
+    }
+    
+    val scoreStatus = when {
+        securityScore >= 80 -> "Secure"
+        securityScore >= 60 -> "Moderate"
+        else -> "At Risk"
+    }
+    
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
@@ -318,11 +331,39 @@ private fun SecurityOverviewWidget(networkStats: NetworkStats) {
                 Icon(
                     Icons.Filled.Security,
                     contentDescription = null,
-                    tint = VibrантGreen
+                    tint = scoreColor
                 )
             }
             
             Spacer(modifier = Modifier.height(16.dp))
+            
+            // Security Score with color coding
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(
+                        text = "Security Score",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = TextSecondary
+                    )
+                    Text(
+                        text = scoreStatus,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = scoreColor
+                    )
+                }
+                Text(
+                    text = "$securityScore/100",
+                    style = MaterialTheme.typography.displaySmall,
+                    color = scoreColor,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            
+            Spacer(modifier = Modifier.height(12.dp))
             
             // Security metrics
             Row(
@@ -331,7 +372,6 @@ private fun SecurityOverviewWidget(networkStats: NetworkStats) {
             ) {
                 SecurityMetric("Threats Blocked", networkStats.threatsBlocked.toString(), ThreatRed)
                 SecurityMetric("Active Connections", networkStats.activeConnections.toString(), ElectricBlue)
-                SecurityMetric("Security Score", "${networkStats.securityScore}/100", VibrантGreen)
             }
         }
     }
@@ -419,6 +459,7 @@ private fun DataUsageWidget(networkStats: NetworkStats) {
 
 @Composable
 private fun ConnectedDevicesWidget(networkStats: NetworkStats) {
+    val context = LocalContext.current
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
@@ -434,18 +475,46 @@ private fun ConnectedDevicesWidget(networkStats: NetworkStats) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "Connected Devices",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = TextPrimary,
-                    fontWeight = FontWeight.SemiBold
+                Column {
+                    Text(
+                        text = "Connected Devices",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = TextPrimary,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "On your local network",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = TextTertiary
+                    )
+                }
+                
+                // Prominent device count with animation
+                val animatedCount by animateIntAsState(
+                    targetValue = networkStats.connectedDevices,
+                    animationSpec = tween(durationMillis = 800, easing = FastOutSlowInEasing),
+                    label = "deviceCount"
                 )
-                Text(
-                    text = networkStats.connectedDevices.toString(),
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = ElectricBlue,
-                    fontWeight = FontWeight.Bold
-                )
+                
+                Box(
+                    modifier = Modifier
+                        .size(80.dp)
+                        .background(
+                            brush = Brush.radialGradient(
+                                colors = listOf(ElectricBlue.copy(alpha = 0.3f), androidx.compose.ui.graphics.Color.Transparent)
+                            ),
+                            shape = CircleShape
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = animatedCount.toString(),
+                        style = MaterialTheme.typography.displayMedium,
+                        color = ElectricBlue,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
             
             Spacer(modifier = Modifier.height(12.dp))
@@ -453,7 +522,8 @@ private fun ConnectedDevicesWidget(networkStats: NetworkStats) {
             Text(
                 text = "Tap to view detailed device information",
                 style = MaterialTheme.typography.bodySmall,
-                color = TextTertiary
+                color = TextTertiary,
+                modifier = Modifier.fillMaxWidth()
             )
         }
     }
