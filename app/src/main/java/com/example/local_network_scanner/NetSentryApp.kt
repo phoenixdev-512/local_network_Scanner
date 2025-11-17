@@ -150,7 +150,7 @@ fun NetSentryApp() {
                 // Legacy routes
                 composable(Screen.Firewall.route) { FirewallScreen(navController) }
                 composable(Screen.AppRules.route) { AppListScreen() }
-                composable(Screen.ConnectionLog.route) { LogScreen() }
+                composable(Screen.ConnectionLog.route) { EnhancedLogScreen() }
                 composable(Screen.Map.route) { MapScreen() }
                 composable(Screen.Wifi.route) { WifiScreen() }
                 composable(Screen.Settings.route) { EnhancedSettingsScreenV2() }
