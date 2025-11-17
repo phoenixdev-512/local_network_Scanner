@@ -133,13 +133,13 @@ fun NetSentryApp() {
                     route = Screen.Network.route,
                     enterTransition = { fadeIn(animationSpec = tween(300)) + slideInHorizontally(animationSpec = tween(300)) { it / 2 } },
                     exitTransition = { fadeOut(animationSpec = tween(300)) + slideOutHorizontally(animationSpec = tween(300)) { it / 2 } }
-                ) { WifiScreen() } // Combined WiFi + Map
+                ) { NetworkScannerScreen() } // Network scanning with WiFi discovery
                 
                 composable(
                     route = Screen.Security.route,
                     enterTransition = { fadeIn(animationSpec = tween(300)) + slideInHorizontally(animationSpec = tween(300)) { it / 2 } },
                     exitTransition = { fadeOut(animationSpec = tween(300)) + slideOutHorizontally(animationSpec = tween(300)) { it / 2 } }
-                ) { FirewallScreen(navController) } // Combined Firewall + App Rules
+                ) { SecurityScreen() } // Security scan and threat detection
                 
                 composable(
                     route = Screen.Activity.route,
@@ -153,7 +153,7 @@ fun NetSentryApp() {
                 composable(Screen.ConnectionLog.route) { LogScreen() }
                 composable(Screen.Map.route) { MapScreen() }
                 composable(Screen.Wifi.route) { WifiScreen() }
-                composable(Screen.Settings.route) { SettingsScreen(navController) }
+                composable(Screen.Settings.route) { EnhancedSettingsScreenV2() }
                 
                 // New feature screens with slide transitions
                 composable(
