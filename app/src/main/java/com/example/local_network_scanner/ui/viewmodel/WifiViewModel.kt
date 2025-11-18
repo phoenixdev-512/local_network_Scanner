@@ -45,6 +45,9 @@ class WifiViewModel @Inject constructor(
     private val _permissionGranted = MutableStateFlow(false)
     val permissionGranted = _permissionGranted.asStateFlow()
 
+    private val _isScanning = MutableStateFlow(false)
+    val isScanning = _isScanning.asStateFlow()
+
     private val networkCallback = object : ConnectivityManager.NetworkCallback() {
         override fun onAvailable(network: Network) {
             updateConnectionInfo()
@@ -61,6 +64,7 @@ class WifiViewModel @Inject constructor(
         if (success) {
             _scanResults.value = results
         }
+        _isScanning.value = false
     }
 
     init {
@@ -82,6 +86,7 @@ class WifiViewModel @Inject constructor(
     fun startScan() {
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             _permissionGranted.value = true
+            _isScanning.value = true
             wifiManager.startScan()
         } else {
             _permissionGranted.value = false
