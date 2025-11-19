@@ -164,7 +164,7 @@ fun EnhancedSettingsScreen(
                         SettingsSelectionRow(
                             title = "Default Firewall Behavior",
                             description = defaultFirewall.label,
-                            icon = Icons.Default.Firewall,
+                            icon = Icons.Default.Shield,
                             onClick = {
                                 defaultFirewall = when (defaultFirewall) {
                                     FirewallBehavior.ALLOW_ALL -> FirewallBehavior.BLOCK_ALL
@@ -195,7 +195,7 @@ fun EnhancedSettingsScreen(
                             description = "Enable DNS over HTTPS",
                             checked = dnsSettings.enableSecureDns,
                             onCheckedChange = { settingsViewModel.setEnableSecureDns(it) },
-                            icon = Icons.Default.HttpsLock
+                            icon = Icons.Default.Lock
                         )
                     }
                 }

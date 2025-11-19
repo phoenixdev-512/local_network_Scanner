@@ -153,7 +153,7 @@ fun NetSentryApp() {
                 composable(Screen.ConnectionLog.route) { EnhancedLogScreen() }
                 composable(Screen.Map.route) { MapScreen() }
                 composable(Screen.Wifi.route) { WifiScreen() }
-                composable(Screen.Settings.route) { EnhancedSettingsScreenV2() }
+                composable(Screen.Settings.route) { EnhancedSettingsScreen() }
                 
                 // New feature screens with slide transitions
                 composable(

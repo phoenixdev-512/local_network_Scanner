@@ -440,15 +440,6 @@ private fun EmptyActivityCard() {
     }
 }
 
-fun formatBytes(bytes: Long): String {
-    return when {
-        bytes < 1024 -> "$bytes B"
-        bytes < 1024 * 1024 -> "${bytes / 1024} KB"
-        bytes < 1024 * 1024 * 1024 -> "${bytes / (1024 * 1024)} MB"
-        else -> "${bytes / (1024 * 1024 * 1024)} GB"
-    }
-}
-
 enum class ActivitySortOption {
     DATA_USAGE, APP_NAME, CONNECTIONS
 }
