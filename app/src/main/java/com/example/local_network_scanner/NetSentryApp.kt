@@ -3,6 +3,7 @@ package com.example.local_network_scanner
 import android.widget.Toast
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -16,7 +17,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -246,31 +249,25 @@ private fun DrawerHeader() {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Avatar
-        Box(
+        // App logo as avatar
+        Image(
+            painter = painterResource(id = R.mipmap.ic_launcher),
+            contentDescription = "App logo",
             modifier = Modifier
                 .size(56.dp)
-                .clip(CircleShape)
-                .background(ElectricBlue),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                Icons.Filled.Person,
-                contentDescription = "Avatar",
-                modifier = Modifier.size(32.dp),
-                tint = TextPrimary
-            )
-        }
+                .clip(CircleShape),
+            contentScale = ContentScale.Crop
+        )
         
         Column {
             Text(
-                text = "Admin User",
+                text = "NetSentry",
                 style = MaterialTheme.typography.titleMedium,
                 color = TextPrimary,
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "admin@example.com",
+                text = "Network Security Monitor",
                 style = MaterialTheme.typography.bodySmall,
                 color = TextSecondary
             )
