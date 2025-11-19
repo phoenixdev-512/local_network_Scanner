@@ -1,6 +1,5 @@
 package com.example.local_network_scanner
 
-import android.widget.Toast
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -18,7 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -50,6 +48,8 @@ sealed class Screen(val route: String, val label: String, val icon: @Composable 
     object Profile : Screen("profile", "Profile", { Icon(Icons.Filled.Person, contentDescription = null) })
     object ProfileManagement : Screen("profile_management", "Profile Management", { Icon(Icons.Filled.SupervisorAccount, contentDescription = null) })
     object NetworkManager : Screen("network_manager", "Network Manager", { Icon(Icons.Filled.Router, contentDescription = null) })
+    object HelpDocumentation : Screen("help_documentation", "Help & Documentation", { Icon(Icons.Filled.Help, contentDescription = null) })
+    object About : Screen("about", "About", { Icon(Icons.Filled.Info, contentDescription = null) })
 }
 
 // Bottom navigation items (4 essential tabs)
@@ -189,6 +189,18 @@ fun NetSentryApp() {
                     enterTransition = { slideInHorizontally(animationSpec = tween(400)) { it } + fadeIn(animationSpec = tween(400)) },
                     exitTransition = { slideOutHorizontally(animationSpec = tween(400)) { it } + fadeOut(animationSpec = tween(400)) }
                 ) { NetworkManagerScreen() }
+                
+                composable(
+                    route = Screen.HelpDocumentation.route,
+                    enterTransition = { slideInHorizontally(animationSpec = tween(400)) { it } + fadeIn(animationSpec = tween(400)) },
+                    exitTransition = { slideOutHorizontally(animationSpec = tween(400)) { it } + fadeOut(animationSpec = tween(400)) }
+                ) { HelpDocumentationScreen(navController = navController) }
+                
+                composable(
+                    route = Screen.About.route,
+                    enterTransition = { slideInHorizontally(animationSpec = tween(400)) { it } + fadeIn(animationSpec = tween(400)) },
+                    exitTransition = { slideOutHorizontally(animationSpec = tween(400)) { it } + fadeOut(animationSpec = tween(400)) }
+                ) { AboutScreen(navController = navController) }
             }
         }
     }
@@ -207,7 +219,6 @@ fun NetSentryApp() {
  */
 @Composable
 private fun NavigationDrawerContent(onNavigate: (String) -> Unit) {
-    val context = LocalContext.current
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -246,15 +257,12 @@ private fun NavigationDrawerContent(onNavigate: (String) -> Unit) {
         DrawerNavigationItem(
             icon = Icons.Filled.Help,
             label = "Help & Documentation",
-            onClick = { 
-                Toast.makeText(context, "Help & Documentation - Under Development", Toast.LENGTH_SHORT).show()
-            }
+            onClick = { onNavigate(Screen.HelpDocumentation.route) }
         )
         DrawerNavigationItem(
             icon = Icons.Filled.Info,
             label = "About",
-            onClick = { 
-                Toast.makeText(context, "About - Under Development", Toast.LENGTH_SHORT).show()
+            onClick = { onNavigate(Screen.About.route) }
             }
         )
         

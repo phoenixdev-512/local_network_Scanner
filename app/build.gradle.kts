@@ -109,6 +109,14 @@ dependencies {
     implementation("androidx.compose.animation:animation:1.6.0")
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")
     implementation("io.coil-kt:coil-compose:2.5.0") // For avatar images
+    
+    // Markdown rendering
+    implementation("com.github.jeziellago:compose-markdown:0.3.6")
+    
+    // Retrofit for GitHub API
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 
 
     testImplementation("junit:junit:4.13.2")
