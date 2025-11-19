@@ -45,7 +45,7 @@ class NetSentryTileService : TileService() {
     private fun updateTile(isActive: Boolean) {
         qsTile.state = if (isActive) Tile.STATE_ACTIVE else Tile.STATE_INACTIVE
         qsTile.icon = Icon.createWithResource(this, if (isActive) R.drawable.ic_qs_shield else R.drawable.ic_qs_power)
-        qsTile.label = if (isActive) "NetSentry (Active)" else "NetSentry (Inactive)"
+        qsTile.label = if (isActive) "SENET (Active)" else "SENET (Inactive)"
         qsTile.updateTile()
     }
 }

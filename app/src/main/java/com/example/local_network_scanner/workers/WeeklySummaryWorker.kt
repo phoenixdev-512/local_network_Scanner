@@ -24,7 +24,7 @@ class WeeklySummaryWorker @AssistedInject constructor(
         val stats = statsDao.getStatsSince(sevenDaysAgo).first()
         val totalBlocked = stats.sumOf { it.connectionsBlocked }
 
-        val summary = "This week, NetSentry blocked $totalBlocked connections."
+        val summary = "This week, SENET blocked $totalBlocked connections."
         notificationHelper.showSummaryNotification("Weekly Report", summary)
 
         return Result.success()
