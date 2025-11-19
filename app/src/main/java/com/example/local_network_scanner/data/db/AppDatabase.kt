@@ -2,6 +2,7 @@ package com.example.local_network_scanner.data.db
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 
 @Database(
     entities = [
@@ -20,6 +21,7 @@ import androidx.room.RoomDatabase
     version = 8,
     exportSchema = false
 )
+@TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun logDao(): LogDao
     abstract fun profileDao(): ProfileDao
