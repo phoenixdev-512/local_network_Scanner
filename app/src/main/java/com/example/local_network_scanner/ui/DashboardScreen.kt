@@ -1,9 +1,11 @@
 package com.example.local_network_scanner.ui
 
+import android.app.Activity
 import android.widget.Toast
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
@@ -24,6 +26,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.local_network_scanner.ui.theme.*
 import com.example.local_network_scanner.ui.viewmodel.DashboardViewModel
+import com.example.local_network_scanner.util.PermissionHelper
 
 /**
  * Dashboard screen with Speedtest-inspired design
@@ -40,6 +43,16 @@ fun DashboardScreen(
     val networkStats by viewModel.networkStats.collectAsState()
     val networkSpeed by viewModel.networkSpeed.collectAsState()
     val ping by viewModel.ping.collectAsState()
+    
+    // Check if usage stats permission is granted
+    val hasUsageStatsPermission = remember { 
+        mutableStateOf(PermissionHelper.hasUsageStatsPermission(context)) 
+    }
+    
+    // Recheck permission when screen becomes visible
+    LaunchedEffect(Unit) {
+        hasUsageStatsPermission.value = PermissionHelper.hasUsageStatsPermission(context)
+    }
     
     Column(
         modifier = Modifier
@@ -59,6 +72,24 @@ fun DashboardScreen(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            // Permission banner if not granted
+            if (!hasUsageStatsPermission.value) {
+                item {
+                    PermissionBanner(
+                        onRequestPermission = {
+                            if (context is Activity) {
+                                PermissionHelper.requestUsageStatsPermission(context)
+                            }
+                        },
+                        onDismiss = {
+                            // Recheck permission after user returns
+                            hasUsageStatsPermission.value = 
+                                PermissionHelper.hasUsageStatsPermission(context)
+                        }
+                    )
+                }
+            }
+            
             item { 
                 SpeedTestWidget(
                     isMonitoring = isMonitoring,
@@ -656,6 +687,64 @@ private fun QuickActionButton(
             style = MaterialTheme.typography.bodySmall,
             color = TextSecondary
         )
+    }
+}
+
+@Composable
+private fun PermissionBanner(
+    onRequestPermission: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onRequestPermission() },
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = WarningOrange.copy(alpha = 0.15f)
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(
+                modifier = Modifier.weight(1f),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    Icons.Filled.Warning,
+                    contentDescription = null,
+                    tint = WarningOrange,
+                    modifier = Modifier.size(32.dp)
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                Column {
+                    Text(
+                        text = "Permission Required",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = TextPrimary,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Grant usage access for accurate data statistics",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = TextSecondary
+                    )
+                }
+            }
+            Icon(
+                Icons.Filled.ChevronRight,
+                contentDescription = "Open settings",
+                tint = WarningOrange,
+                modifier = Modifier.size(24.dp)
+            )
+        }
     }
 }
 
