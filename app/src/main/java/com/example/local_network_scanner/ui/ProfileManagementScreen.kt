@@ -29,6 +29,11 @@ import coil.compose.AsyncImage
 import com.example.local_network_scanner.R
 import com.example.local_network_scanner.data.db.UserProfile
 import com.example.local_network_scanner.data.db.UserRole
+import com.example.local_network_scanner.ui.components.ProfileFormDialog
+import com.example.local_network_scanner.ui.theme.*
+import com.example.local_network_scanner.ui.viewmodel.ProfileUiState
+import com.example.local_network_scanner.ui.viewmodel.ProfileViewModel
+import com.example.local_network_scanner.data.db.UserRole
 import com.example.local_network_scanner.ui.theme.*
 import com.example.local_network_scanner.ui.viewmodel.ProfileUiState
 import com.example.local_network_scanner.ui.viewmodel.ProfileViewModel
