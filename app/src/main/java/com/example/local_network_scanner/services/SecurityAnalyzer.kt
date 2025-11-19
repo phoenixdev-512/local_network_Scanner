@@ -191,6 +191,38 @@ class SecurityAnalyzer @Inject constructor(
             else -> RiskLevel.LOW
         }
     }
+    
+    /**
+     * Perform a deep security scan
+     * Scans for suspicious apps and calculates updated security score
+     */
+    suspend fun performDeepScan(): SecurityScanResult = withContext(Dispatchers.IO) {
+        try {
+            // Scan for suspicious apps
+            val suspicious = scanForSuspiciousApps()
+            
+            // Count apps with network access
+            val networkApps = countAppsWithNetworkAccess()
+            
+            // Calculate updated security score
+            val score = calculateSecurityScore()
+            
+            SecurityScanResult(
+                score = score,
+                suspiciousApps = suspicious,
+                appsWithNetworkAccess = networkApps,
+                timestamp = System.currentTimeMillis()
+            )
+        } catch (e: Exception) {
+            android.util.Log.e("SecurityAnalyzer", "Error performing deep scan", e)
+            SecurityScanResult(
+                score = _securityScore.value,
+                suspiciousApps = _suspiciousApps.value,
+                appsWithNetworkAccess = _appsWithNetworkAccess.value,
+                timestamp = System.currentTimeMillis()
+            )
+        }
+    }
 }
 
 data class SuspiciousApp(
@@ -203,3 +235,10 @@ data class SuspiciousApp(
 enum class RiskLevel {
     LOW, MEDIUM, HIGH
 }
+
+data class SecurityScanResult(
+    val score: Int,
+    val suspiciousApps: List<SuspiciousApp>,
+    val appsWithNetworkAccess: Int,
+    val timestamp: Long
+)
