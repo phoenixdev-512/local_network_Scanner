@@ -27,6 +27,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.local_network_scanner.ui.*
+import com.example.local_network_scanner.ui.animation.SenetMotionSpecs
+import com.example.local_network_scanner.ui.components.SenetLogo
 import com.example.local_network_scanner.ui.theme.*
 import kotlinx.coroutines.launch
 
@@ -136,32 +138,42 @@ fun NetSentryApp() {
             NavHost(
                 navController,
                 startDestination = Screen.Dashboard.route,
-                Modifier.padding(innerPadding)
+                Modifier.padding(innerPadding),
+                enterTransition = { 
+                    SenetMotionSpecs.sharedAxisTransitionX().targetContentEnter
+                },
+                exitTransition = { 
+                    SenetMotionSpecs.sharedAxisTransitionX().initialContentExit
+                },
+                popEnterTransition = { 
+                    SenetMotionSpecs.sharedAxisTransitionX(
+                        initialOffsetX = { -it },
+                        targetOffsetX = { it }
+                    ).targetContentEnter
+                },
+                popExitTransition = { 
+                    SenetMotionSpecs.sharedAxisTransitionX(
+                        initialOffsetX = { -it },
+                        targetOffsetX = { it }
+                    ).initialContentExit
+                }
             ) {
-                // New screens with animations
+                // Main navigation screens
                 composable(
-                    route = Screen.Dashboard.route,
-                    enterTransition = { fadeIn(animationSpec = tween(300)) + slideInHorizontally(animationSpec = tween(300)) { -it / 2 } },
-                    exitTransition = { fadeOut(animationSpec = tween(300)) + slideOutHorizontally(animationSpec = tween(300)) { -it / 2 } }
+                    route = Screen.Dashboard.route
                 ) { DashboardScreen(navController = navController) }
                 
                 composable(
-                    route = Screen.Network.route,
-                    enterTransition = { fadeIn(animationSpec = tween(300)) + slideInHorizontally(animationSpec = tween(300)) { it / 2 } },
-                    exitTransition = { fadeOut(animationSpec = tween(300)) + slideOutHorizontally(animationSpec = tween(300)) { it / 2 } }
-                ) { NetworkScannerScreen() } // Network scanning with WiFi discovery
+                    route = Screen.Network.route
+                ) { NetworkScannerScreen() }
                 
                 composable(
-                    route = Screen.Security.route,
-                    enterTransition = { fadeIn(animationSpec = tween(300)) + slideInHorizontally(animationSpec = tween(300)) { it / 2 } },
-                    exitTransition = { fadeOut(animationSpec = tween(300)) + slideOutHorizontally(animationSpec = tween(300)) { it / 2 } }
-                ) { SecurityScreen() } // Security scan and threat detection
+                    route = Screen.Security.route
+                ) { SecurityScreen() }
                 
                 composable(
-                    route = Screen.Activity.route,
-                    enterTransition = { fadeIn(animationSpec = tween(300)) + slideInHorizontally(animationSpec = tween(300)) { it / 2 } },
-                    exitTransition = { fadeOut(animationSpec = tween(300)) + slideOutHorizontally(animationSpec = tween(300)) { it / 2 } }
-                ) { ActivityScreen() } // New Activity screen with 5-minute network stats
+                    route = Screen.Activity.route
+                ) { ActivityScreen() }
                 
                 // Legacy routes
                 composable(Screen.Firewall.route) { FirewallScreen(navController) }
@@ -171,35 +183,55 @@ fun NetSentryApp() {
                 composable(Screen.Wifi.route) { WifiScreen() }
                 composable(Screen.Settings.route) { EnhancedSettingsScreen() }
                 
-                // New feature screens with slide transitions
+                // Feature screens with container transform
                 composable(
                     route = Screen.Profile.route,
-                    enterTransition = { slideInHorizontally(animationSpec = tween(400)) { it } + fadeIn(animationSpec = tween(400)) },
-                    exitTransition = { slideOutHorizontally(animationSpec = tween(400)) { it } + fadeOut(animationSpec = tween(400)) }
+                    enterTransition = { 
+                        SenetMotionSpecs.containerTransform().targetContentEnter
+                    },
+                    exitTransition = { 
+                        SenetMotionSpecs.containerTransform().initialContentExit
+                    }
                 ) { ProfileScreen() }
                 
                 composable(
                     route = Screen.ProfileManagement.route,
-                    enterTransition = { slideInHorizontally(animationSpec = tween(400)) { it } + fadeIn(animationSpec = tween(400)) },
-                    exitTransition = { slideOutHorizontally(animationSpec = tween(400)) { it } + fadeOut(animationSpec = tween(400)) }
+                    enterTransition = { 
+                        SenetMotionSpecs.containerTransform().targetContentEnter
+                    },
+                    exitTransition = { 
+                        SenetMotionSpecs.containerTransform().initialContentExit
+                    }
                 ) { ProfileManagementScreen(navController = navController) }
                 
                 composable(
                     route = Screen.NetworkManager.route,
-                    enterTransition = { slideInHorizontally(animationSpec = tween(400)) { it } + fadeIn(animationSpec = tween(400)) },
-                    exitTransition = { slideOutHorizontally(animationSpec = tween(400)) { it } + fadeOut(animationSpec = tween(400)) }
+                    enterTransition = { 
+                        SenetMotionSpecs.containerTransform().targetContentEnter
+                    },
+                    exitTransition = { 
+                        SenetMotionSpecs.containerTransform().initialContentExit
+                    }
                 ) { NetworkManagerScreen() }
                 
                 composable(
                     route = Screen.HelpDocumentation.route,
-                    enterTransition = { slideInHorizontally(animationSpec = tween(400)) { it } + fadeIn(animationSpec = tween(400)) },
-                    exitTransition = { slideOutHorizontally(animationSpec = tween(400)) { it } + fadeOut(animationSpec = tween(400)) }
+                    enterTransition = { 
+                        SenetMotionSpecs.containerTransform().targetContentEnter
+                    },
+                    exitTransition = { 
+                        SenetMotionSpecs.containerTransform().initialContentExit
+                    }
                 ) { HelpDocumentationScreen(navController = navController) }
                 
                 composable(
                     route = Screen.About.route,
-                    enterTransition = { slideInHorizontally(animationSpec = tween(400)) { it } + fadeIn(animationSpec = tween(400)) },
-                    exitTransition = { slideOutHorizontally(animationSpec = tween(400)) { it } + fadeOut(animationSpec = tween(400)) }
+                    enterTransition = { 
+                        SenetMotionSpecs.containerTransform().targetContentEnter
+                    },
+                    exitTransition = { 
+                        SenetMotionSpecs.containerTransform().initialContentExit
+                    }
                 ) { AboutScreen(navController = navController) }
             }
         }
@@ -278,42 +310,44 @@ private fun NavigationDrawerContent(onNavigate: (String) -> Unit) {
 }
 
 /**
- * Drawer header with app logo and branding
+ * Drawer header with SENET logo and branding
  * 
- * Displays the SENET app logo (from ic_launcher mipmap) in a circular
- * format along with the app name and tagline. This provides consistent
- * branding throughout the navigation experience.
+ * Displays the SENET app logo in a circular format along with 
+ * the app name and tagline. This provides consistent branding 
+ * throughout the navigation experience.
  */
 @Composable
 private fun DrawerHeader() {
-    Row(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 28.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
+            .height(200.dp)
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = SenetColors.darkGradient
+                )
+            ),
+        contentAlignment = Alignment.Center
     ) {
-        // App logo as avatar
-        Image(
-            painter = painterResource(id = R.mipmap.ic_launcher),
-            contentDescription = "App logo",
-            modifier = Modifier
-                .size(56.dp)
-                .clip(CircleShape),
-            contentScale = ContentScale.Crop
-        )
-        
-        Column {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            SenetLogo(size = 80.dp)
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
             Text(
                 text = "SENET",
-                style = MaterialTheme.typography.titleMedium,
-                color = TextPrimary,
+                style = MaterialTheme.typography.headlineMedium,
+                color = SenetColors.WhitePure,
                 fontWeight = FontWeight.Bold
             )
+            
             Text(
-                text = "Network Security Monitor",
+                text = "Security Network Scanner",
                 style = MaterialTheme.typography.bodySmall,
-                color = TextSecondary
+                color = SenetColors.WhitePure.copy(alpha = 0.7f)
             )
         }
     }
