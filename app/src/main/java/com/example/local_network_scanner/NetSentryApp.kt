@@ -3,6 +3,7 @@ package com.example.local_network_scanner
 import android.widget.Toast
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -16,7 +17,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -56,6 +59,18 @@ val bottomNavItems = listOf(
     Screen.Activity
 )
 
+/**
+ * Main application composable for NetSentry
+ * 
+ * This is the root composable that sets up:
+ * - Navigation drawer with app branding and menu
+ * - Bottom navigation bar with 4 main sections
+ * - Navigation host with all app screens
+ * - Screen transitions and animations
+ * 
+ * The app follows a Material 3 design with a dark theme optimized for
+ * network monitoring and security visualization.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NetSentryApp() {
@@ -172,6 +187,17 @@ fun NetSentryApp() {
     }
 }
 
+/**
+ * Navigation drawer content with app branding and menu items
+ * 
+ * Features:
+ * - Header with app logo (ic_launcher) and NetSentry branding
+ * - Navigation items for Profile, Network Manager, Settings, Help, and About
+ * - Footer with app version information
+ * - Material 3 styling with gradient background
+ * 
+ * @param onNavigate Callback for navigation actions
+ */
 @Composable
 private fun NavigationDrawerContent(onNavigate: (String) -> Unit) {
     val context = LocalContext.current
@@ -237,6 +263,13 @@ private fun NavigationDrawerContent(onNavigate: (String) -> Unit) {
     }
 }
 
+/**
+ * Drawer header with app logo and branding
+ * 
+ * Displays the NetSentry app logo (from ic_launcher mipmap) in a circular
+ * format along with the app name and tagline. This provides consistent
+ * branding throughout the navigation experience.
+ */
 @Composable
 private fun DrawerHeader() {
     Row(
@@ -246,31 +279,25 @@ private fun DrawerHeader() {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Avatar
-        Box(
+        // App logo as avatar
+        Image(
+            painter = painterResource(id = R.mipmap.ic_launcher),
+            contentDescription = "App logo",
             modifier = Modifier
                 .size(56.dp)
-                .clip(CircleShape)
-                .background(ElectricBlue),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                Icons.Filled.Person,
-                contentDescription = "Avatar",
-                modifier = Modifier.size(32.dp),
-                tint = TextPrimary
-            )
-        }
+                .clip(CircleShape),
+            contentScale = ContentScale.Crop
+        )
         
         Column {
             Text(
-                text = "Admin User",
+                text = "NetSentry",
                 style = MaterialTheme.typography.titleMedium,
                 color = TextPrimary,
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "admin@example.com",
+                text = "Network Security Monitor",
                 style = MaterialTheme.typography.bodySmall,
                 color = TextSecondary
             )
