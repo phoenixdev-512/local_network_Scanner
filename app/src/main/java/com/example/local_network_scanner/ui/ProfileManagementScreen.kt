@@ -33,10 +33,6 @@ import com.example.local_network_scanner.ui.components.ProfileFormDialog
 import com.example.local_network_scanner.ui.theme.*
 import com.example.local_network_scanner.ui.viewmodel.ProfileUiState
 import com.example.local_network_scanner.ui.viewmodel.ProfileViewModel
-import com.example.local_network_scanner.data.db.UserRole
-import com.example.local_network_scanner.ui.theme.*
-import com.example.local_network_scanner.ui.viewmodel.ProfileUiState
-import com.example.local_network_scanner.ui.viewmodel.ProfileViewModel
 
 /**
  * Profile Management Screen
@@ -205,8 +201,9 @@ fun ProfileCard(
     onSwitchClick: () -> Unit
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
-        onClick = if (!isActive) onSwitchClick else {},
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(enabled = !isActive) { if (!isActive) onSwitchClick() },
         colors = CardDefaults.cardColors(
             containerColor = if (isActive) 
                 ElectricBlue.copy(alpha = 0.2f)
