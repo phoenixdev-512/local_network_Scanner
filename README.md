@@ -1,7 +1,7 @@
-# NetSentry - Network Security & Monitoring Application
+# SENET - Network Security & Monitoring Application
 
 <p align="center">
-  <img src="docs/images/app_logo.jpg" width="200" alt="NetSentry Logo">
+  <img src="docs/images/app_logo.jpg" width="200" alt="SENET Logo">
 </p>
 
 <p align="center">
@@ -20,7 +20,7 @@
 
 ## Overview
 
-NetSentry is a comprehensive Android application designed for real-time network monitoring, security analysis, and device management. Built with modern Android development practices using Jetpack Compose and Material 3 design principles, NetSentry provides enterprise-grade network visibility and security features for mobile devices.
+SENET is a comprehensive Android application designed for real-time network monitoring, security analysis, and device management. Built with modern Android development practices using Jetpack Compose and Material 3 design principles, SENET provides enterprise-grade network visibility and security features for mobile devices.
 
 ### Key Capabilities
 

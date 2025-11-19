@@ -61,7 +61,7 @@ val bottomNavItems = listOf(
 )
 
 /**
- * Main application composable for NetSentry
+ * Main application composable for SENET
  * 
  * This is the root composable that sets up:
  * - Navigation drawer with app branding and menu
@@ -198,7 +198,7 @@ fun NetSentryApp() {
  * Navigation drawer content with app branding and menu items
  * 
  * Features:
- * - Header with app logo (ic_launcher) and NetSentry branding
+ * - Header with app logo (ic_launcher) and SENET branding
  * - Navigation items for Profile, Network Manager, Settings, Help, and About
  * - Footer with app version information
  * - Material 3 styling with gradient background
@@ -262,7 +262,7 @@ private fun NavigationDrawerContent(onNavigate: (String) -> Unit) {
         
         // Footer
         Text(
-            text = "NetSentry v1.0",
+            text = "SENET v1.0",
             style = MaterialTheme.typography.bodySmall,
             color = TextTertiary,
             modifier = Modifier.padding(horizontal = 28.dp)
@@ -273,7 +273,7 @@ private fun NavigationDrawerContent(onNavigate: (String) -> Unit) {
 /**
  * Drawer header with app logo and branding
  * 
- * Displays the NetSentry app logo (from ic_launcher mipmap) in a circular
+ * Displays the SENET app logo (from ic_launcher mipmap) in a circular
  * format along with the app name and tagline. This provides consistent
  * branding throughout the navigation experience.
  */
@@ -298,7 +298,7 @@ private fun DrawerHeader() {
         
         Column {
             Text(
-                text = "NetSentry",
+                text = "SENET",
                 style = MaterialTheme.typography.titleMedium,
                 color = TextPrimary,
                 fontWeight = FontWeight.Bold

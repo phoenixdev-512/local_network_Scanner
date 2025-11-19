@@ -243,7 +243,7 @@ fun EnhancedSettingsScreen(
                         SettingItem.Info("Version", "1.0.0", Icons.Filled.AppSettingsAlt),
                         SettingItem.Navigation(
                             "Help & Documentation",
-                            "Get help using NetSentry",
+                            "Get help using SENET",
                             Icons.Filled.Help,
                             {}
                         ),
