@@ -38,6 +38,8 @@ object AppModule {
         return context.getSystemService(Context.WIFI_SERVICE) as WifiManager
     }
 
+    // DataUsageMonitor is automatically provided by @Singleton and @Inject constructor
+
     // Migration from version 5 to 6
     private val MIGRATION_5_6 = object : Migration(5, 6) {
         override fun migrate(database: SupportSQLiteDatabase) {

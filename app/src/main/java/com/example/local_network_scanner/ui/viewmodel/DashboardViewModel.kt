@@ -1,11 +1,13 @@
 package com.example.local_network_scanner.ui.viewmodel
 
-import android.net.TrafficStats
+import android.os.Build
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.local_network_scanner.services.DataUsageMonitor
 import com.example.local_network_scanner.services.DeviceScanner
 import com.example.local_network_scanner.services.NetworkMonitor
 import com.example.local_network_scanner.services.SecurityAnalyzer
+import com.example.local_network_scanner.services.TimeRange
 import com.example.local_network_scanner.ui.NetworkStats
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -24,7 +26,8 @@ import javax.inject.Inject
 class DashboardViewModel @Inject constructor(
     private val networkMonitor: NetworkMonitor,
     private val securityAnalyzer: SecurityAnalyzer,
-    private val deviceScanner: DeviceScanner
+    private val deviceScanner: DeviceScanner,
+    private val dataUsageMonitor: DataUsageMonitor
 ) : ViewModel() {
     
     private val _isMonitoring = MutableStateFlow(false)
@@ -89,12 +92,20 @@ class DashboardViewModel @Inject constructor(
     
     private suspend fun updateNetworkStats() {
         try {
-            // Calculate data usage from TrafficStats
-            val totalRxBytes = TrafficStats.getTotalRxBytes()
-            val totalTxBytes = TrafficStats.getTotalTxBytes()
-            
-            // Convert to MB
-            val dataUsedMB = ((totalRxBytes + totalTxBytes) / (1024f * 1024f))
+            // Get accurate data usage from DataUsageMonitor if available (API 23+)
+            val dataUsedMB = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                try {
+                    val dataStats = dataUsageMonitor.getDataUsageStats(TimeRange.TODAY)
+                    // Convert bytes to MB
+                    (dataStats.total / (1024f * 1024f))
+                } catch (e: Exception) {
+                    // Fallback to basic data if NetworkStatsManager fails
+                    0f
+                }
+            } else {
+                // Fallback for older Android versions
+                0f
+            }
             
             // Estimate active connections (simplified)
             val estimatedConnections = if (networkSpeed.value.downloadBytesPerSecond > 0 || 
