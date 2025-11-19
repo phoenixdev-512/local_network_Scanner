@@ -14,9 +14,10 @@ import androidx.room.RoomDatabase
         UserProfile::class,
         SavedNetwork::class,
         NetworkPolicy::class,
-        SpeedTestResult::class
+        SpeedTestResult::class,
+        NetworkAnalytics::class
     ],
-    version = 7,
+    version = 8,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -29,4 +30,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun savedNetworkDao(): SavedNetworkDao
     abstract fun networkPolicyDao(): NetworkPolicyDao
     abstract fun speedTestResultDao(): SpeedTestResultDao
+    abstract fun networkAnalyticsDao(): NetworkAnalyticsDao
 }
