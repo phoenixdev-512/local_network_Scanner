@@ -59,6 +59,18 @@ val bottomNavItems = listOf(
     Screen.Activity
 )
 
+/**
+ * Main application composable for NetSentry
+ * 
+ * This is the root composable that sets up:
+ * - Navigation drawer with app branding and menu
+ * - Bottom navigation bar with 4 main sections
+ * - Navigation host with all app screens
+ * - Screen transitions and animations
+ * 
+ * The app follows a Material 3 design with a dark theme optimized for
+ * network monitoring and security visualization.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NetSentryApp() {
@@ -175,6 +187,17 @@ fun NetSentryApp() {
     }
 }
 
+/**
+ * Navigation drawer content with app branding and menu items
+ * 
+ * Features:
+ * - Header with app logo (ic_launcher) and NetSentry branding
+ * - Navigation items for Profile, Network Manager, Settings, Help, and About
+ * - Footer with app version information
+ * - Material 3 styling with gradient background
+ * 
+ * @param onNavigate Callback for navigation actions
+ */
 @Composable
 private fun NavigationDrawerContent(onNavigate: (String) -> Unit) {
     val context = LocalContext.current
@@ -240,6 +263,13 @@ private fun NavigationDrawerContent(onNavigate: (String) -> Unit) {
     }
 }
 
+/**
+ * Drawer header with app logo and branding
+ * 
+ * Displays the NetSentry app logo (from ic_launcher mipmap) in a circular
+ * format along with the app name and tagline. This provides consistent
+ * branding throughout the navigation experience.
+ */
 @Composable
 private fun DrawerHeader() {
     Row(
