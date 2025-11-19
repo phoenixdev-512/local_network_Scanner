@@ -14,6 +14,9 @@ interface NetworkPolicyDao {
     @Query("SELECT * FROM network_policies WHERE id = :id")
     suspend fun getPolicyById(id: Long): NetworkPolicy?
     
+    @Query("SELECT * FROM network_policies WHERE isDefault = 1 LIMIT 1")
+    suspend fun getDefaultPolicy(): NetworkPolicy?
+    
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPolicy(policy: NetworkPolicy): Long
     
@@ -25,4 +28,10 @@ interface NetworkPolicyDao {
     
     @Query("DELETE FROM network_policies WHERE id = :id")
     suspend fun deletePolicyById(id: Long)
+    
+    @Query("UPDATE network_policies SET isActive = 0")
+    suspend fun deactivateAllPolicies()
+    
+    @Query("UPDATE network_policies SET isActive = 1 WHERE id = :policyId")
+    suspend fun activatePolicy(policyId: Long)
 }

@@ -13,18 +13,18 @@ data class NetworkPolicy(
     val description: String,
     val allowedAppsJson: String = "[]", // JSON array of package names
     val blockedDomainsJson: String = "[]", // JSON array of domains
-    val dnsProvider: String = "CLOUDFLARE",
+    val dnsProvider: DnsProvider,
+    val customDnsPrimary: String? = null,
+    val customDnsSecondary: String? = null,
     val enableAdBlocking: Boolean = false,
     val enableMalwareProtection: Boolean = true,
+    val enableTrackerBlocking: Boolean = false,
+    val blockedPortsJson: String = "[]", // JSON array of port numbers
+    val isDefault: Boolean = false,
+    val isActive: Boolean = false,
     val createdAt: Long = System.currentTimeMillis()
 )
 
-/**
- * DNS Provider options
- */
-enum class DnsProvider(val displayName: String, val primaryDns: String, val secondaryDns: String) {
-    CLOUDFLARE("Cloudflare", "1.1.1.1", "1.0.0.1"),
-    GOOGLE("Google", "8.8.8.8", "8.8.4.4"),
-    QUAD9("Quad9", "9.9.9.9", "149.112.112.112"),
-    ADGUARD("AdGuard", "94.140.14.14", "94.140.15.15")
+enum class DnsProvider {
+    CLOUDFLARE, GOOGLE, QUAD9, OPENDNS, CUSTOM
 }

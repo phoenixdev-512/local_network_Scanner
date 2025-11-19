@@ -2,7 +2,6 @@ package com.example.local_network_scanner.data.db
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import androidx.room.TypeConverters
 
 /**
  * Saved network entity for network management
@@ -11,11 +10,18 @@ import androidx.room.TypeConverters
 data class SavedNetwork(
     @PrimaryKey val ssid: String,
     val bssid: String,
-    val securityType: String,
+    val securityType: SecurityType,
     val isTrusted: Boolean = false,
-    val customDns: String? = null,
+    val customDnsPrimary: String? = null,
+    val customDnsSecondary: String? = null,
     val firewallPolicyId: Long? = null,
-    val lastConnected: Long? = null,
-    val averageSpeed: Double = 0.0,
-    val signalStrength: Int = 0
+    val lastConnectedAt: Long? = null,
+    val averageSignalStrength: Int = 0, // 0-100
+    val totalDataUsed: Long = 0, // bytes
+    val connectionCount: Int = 0,
+    val createdAt: Long = System.currentTimeMillis()
 )
+
+enum class SecurityType {
+    OPEN, WEP, WPA, WPA2, WPA3
+}
