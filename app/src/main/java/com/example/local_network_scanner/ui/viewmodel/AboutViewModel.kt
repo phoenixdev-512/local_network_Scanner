@@ -128,7 +128,7 @@ class AboutViewModel @Inject constructor(
                 appendLine()
             }
             
-            val intent = Intent(Intent.EXTRA_EMAIL).apply {
+            val intent = Intent(Intent.ACTION_SENDTO).apply {
                 data = Uri.parse("mailto:")
                 putExtra(Intent.EXTRA_EMAIL, arrayOf("phoenixdev512@example.com"))
                 putExtra(Intent.EXTRA_SUBJECT, "SENET Support - ${getVersionInfo()}")
