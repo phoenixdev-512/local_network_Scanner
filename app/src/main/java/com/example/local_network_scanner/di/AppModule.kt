@@ -6,6 +6,8 @@ import androidx.room.Room
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.local_network_scanner.data.db.*
+import com.example.local_network_scanner.data.repository.ProfileRepository
+import com.example.local_network_scanner.util.ImageStorageService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -87,6 +89,18 @@ object AppModule {
             """.trimIndent())
         }
     }
+    
+    // Migration from version 6 to 7 - Add new profile fields
+    private val MIGRATION_6_7 = object : Migration(6, 7) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            // Add new columns to user_profiles table
+            database.execSQL("ALTER TABLE user_profiles ADD COLUMN lastActiveAt INTEGER NOT NULL DEFAULT 0")
+            database.execSQL("ALTER TABLE user_profiles ADD COLUMN isActive INTEGER NOT NULL DEFAULT 0")
+            database.execSQL("ALTER TABLE user_profiles ADD COLUMN customDnsServer TEXT")
+            database.execSQL("ALTER TABLE user_profiles ADD COLUMN firewallRulesJson TEXT NOT NULL DEFAULT '[]'")
+            database.execSQL("ALTER TABLE user_profiles ADD COLUMN blockedAppsJson TEXT NOT NULL DEFAULT '[]'")
+        }
+    }
 
     @Provides
     @Singleton
@@ -96,7 +110,7 @@ object AppModule {
             AppDatabase::class.java,
             "netsentry_db"
         )
-        .addMigrations(MIGRATION_5_6)
+        .addMigrations(MIGRATION_5_6, MIGRATION_6_7)
         .fallbackToDestructiveMigration()
         .build()
     }
@@ -153,5 +167,17 @@ object AppModule {
     @Singleton
     fun provideSpeedTestResultDao(appDatabase: AppDatabase): SpeedTestResultDao {
         return appDatabase.speedTestResultDao()
+    }
+    
+    @Provides
+    @Singleton
+    fun provideProfileRepository(userProfileDao: UserProfileDao): ProfileRepository {
+        return ProfileRepository(userProfileDao)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideImageStorageService(@ApplicationContext context: Context): ImageStorageService {
+        return ImageStorageService(context)
     }
 }

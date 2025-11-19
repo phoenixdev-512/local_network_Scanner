@@ -48,6 +48,7 @@ sealed class Screen(val route: String, val label: String, val icon: @Composable 
     
     // New screens
     object Profile : Screen("profile", "Profile", { Icon(Icons.Filled.Person, contentDescription = null) })
+    object ProfileManagement : Screen("profile_management", "Profile Management", { Icon(Icons.Filled.SupervisorAccount, contentDescription = null) })
     object NetworkManager : Screen("network_manager", "Network Manager", { Icon(Icons.Filled.Router, contentDescription = null) })
 }
 
@@ -178,6 +179,12 @@ fun NetSentryApp() {
                 ) { ProfileScreen() }
                 
                 composable(
+                    route = Screen.ProfileManagement.route,
+                    enterTransition = { slideInHorizontally(animationSpec = tween(400)) { it } + fadeIn(animationSpec = tween(400)) },
+                    exitTransition = { slideOutHorizontally(animationSpec = tween(400)) { it } + fadeOut(animationSpec = tween(400)) }
+                ) { ProfileManagementScreen(navController = navController) }
+                
+                composable(
                     route = Screen.NetworkManager.route,
                     enterTransition = { slideInHorizontally(animationSpec = tween(400)) { it } + fadeIn(animationSpec = tween(400)) },
                     exitTransition = { slideOutHorizontally(animationSpec = tween(400)) { it } + fadeOut(animationSpec = tween(400)) }
@@ -222,9 +229,9 @@ private fun NavigationDrawerContent(onNavigate: (String) -> Unit) {
         
         // Navigation items
         DrawerNavigationItem(
-            icon = Icons.Filled.Person,
+            icon = Icons.Filled.SupervisorAccount,
             label = "Profile Management",
-            onClick = { onNavigate(Screen.Profile.route) }
+            onClick = { onNavigate(Screen.ProfileManagement.route) }
         )
         DrawerNavigationItem(
             icon = Icons.Filled.Router,

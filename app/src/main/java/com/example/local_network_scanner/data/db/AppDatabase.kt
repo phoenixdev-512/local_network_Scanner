@@ -16,7 +16,7 @@ import androidx.room.RoomDatabase
         NetworkPolicy::class,
         SpeedTestResult::class
     ],
-    version = 6,
+    version = 7,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
