@@ -106,7 +106,7 @@ fun DocumentationTab(viewModel: HelpViewModel) {
                 Column(
                     modifier = Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalAlignment = Arrangement.Center
+                    verticalArrangement = Arrangement.Center
                 ) {
                     CircularProgressIndicator(color = ElectricBlue)
                     Spacer(modifier = Modifier.height(16.dp))
@@ -119,7 +119,7 @@ fun DocumentationTab(viewModel: HelpViewModel) {
                         .fillMaxSize()
                         .padding(32.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalAlignment = Arrangement.Center
+                    verticalArrangement = Arrangement.Center
                 ) {
                     Icon(
                         Icons.Default.ErrorOutline,
@@ -232,7 +232,7 @@ fun FAQsTab(viewModel: HelpViewModel) {
                     .fillMaxSize()
                     .padding(32.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalAlignment = Arrangement.Center
+                verticalArrangement = Arrangement.Center
             ) {
                 Icon(
                     Icons.Default.SearchOff,

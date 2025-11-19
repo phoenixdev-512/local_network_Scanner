@@ -263,7 +263,6 @@ private fun NavigationDrawerContent(onNavigate: (String) -> Unit) {
             icon = Icons.Filled.Info,
             label = "About",
             onClick = { onNavigate(Screen.About.route) }
-            }
         )
         
         Spacer(modifier = Modifier.weight(1f))
