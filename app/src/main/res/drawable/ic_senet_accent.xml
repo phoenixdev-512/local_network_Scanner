@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+    
+    <!-- Background Circle -->
+    <path
+        android:fillColor="#1E3A8A"
+        android:pathData="M100,100m-90,0a90,90 0,1 1,180 0a90,90 0,1 1,-180 0"/>
+    
+    <!-- Inner Circle Border -->
+    <path
+        android:strokeColor="#3B82F6"
+        android:strokeWidth="4"
+        android:fillColor="#00000000"
+        android:pathData="M100,100m-85,0a85,85 0,1 1,170 0a85,85 0,1 1,-170 0"/>
+    
+    <!-- Letter 'S' -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M100,60 Q120,60 130,70 Q140,80 140,95 Q140,105 135,112 Q130,119 120,122 L120,122 Q130,125 135,132 Q140,139 140,150 Q140,165 130,175 Q120,185 100,185 Q80,185 70,175 Q60,165 60,150 L75,150 Q75,160 82,167 Q89,174 100,174 Q111,174 118,167 Q125,160 125,150 Q125,140 118,133 Q111,126 100,126 L90,126 L90,111 L100,111 Q111,111 118,104 Q125,97 125,87 Q125,77 118,70 Q111,63 100,63 Q89,63 82,70 Q75,77 75,87 L60,87 Q60,72 70,66 Q80,60 100,60 Z"/>
+</vector>

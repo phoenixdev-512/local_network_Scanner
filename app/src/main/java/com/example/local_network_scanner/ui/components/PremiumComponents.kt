@@ -2,6 +2,7 @@ package com.example.local_network_scanner.ui.components
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -11,9 +12,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.example.local_network_scanner.R
 import com.example.local_network_scanner.ui.theme.SenetColors
 
 /**
@@ -266,28 +270,11 @@ fun ConfirmationRipple(
  */
 @Composable
 fun SenetLogo(size: Dp = 120.dp) {
-    // Note: Using placeholder since actual logo file doesn't exist yet
-    // Replace R.drawable.ic_senet_logo with actual logo resource when available
-    Box(
+    Image(
+        painter = painterResource(id = R.drawable.ic_senet_logo),
+        contentDescription = "SENET Logo",
         modifier = Modifier
-            .size(size)
-            .shadow(8.dp, RoundedCornerShape(size / 2)),
-        contentAlignment = Alignment.Center
-    ) {
-        // Placeholder circle for logo
-        Surface(
-            modifier = Modifier.size(size),
-            shape = RoundedCornerShape(size / 2),
-            color = SenetColors.NavyBase
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                Text(
-                    text = "S",
-                    style = MaterialTheme.typography.displayLarge,
-                    color = SenetColors.WhitePure,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        }
-    }
+            .size(size),
+        contentScale = ContentScale.Fit
+    )
 }
