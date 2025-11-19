@@ -7,12 +7,15 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.local_network_scanner.data.db.*
 import com.example.local_network_scanner.data.repository.ProfileRepository
+import com.example.local_network_scanner.services.GitHubApiService
 import com.example.local_network_scanner.util.ImageStorageService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import retrofit2.Retrofit
+import retrofit2.converter.scalars.ScalarsConverterFactory
 import javax.inject.Singleton
 
 @Module
@@ -179,5 +182,20 @@ object AppModule {
     @Singleton
     fun provideImageStorageService(@ApplicationContext context: Context): ImageStorageService {
         return ImageStorageService(context)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideRetrofit(): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl("https://api.github.com/")
+            .addConverterFactory(ScalarsConverterFactory.create())
+            .build()
+    }
+    
+    @Provides
+    @Singleton
+    fun provideGitHubApiService(retrofit: Retrofit): GitHubApiService {
+        return retrofit.create(GitHubApiService::class.java)
     }
 }
