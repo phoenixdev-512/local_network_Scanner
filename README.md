@@ -1,151 +1,213 @@
-# NetSentry - Network Security & Monitoring App
+# NetSentry - Network Security & Monitoring Application
 
 <p align="center">
-  <img src="app/src/main/res/mipmap-xxxhdpi/ic_launcher.jpg" width="200" alt="NetSentry Logo">
+  <img src="docs/images/app_logo.jpg" width="200" alt="NetSentry Logo">
 </p>
+
+<p align="center">
+  <strong>Professional Network Monitoring and Security Analysis for Android</strong>
+</p>
+
+<p align="center">
+  <a href="#features">Features</a> •
+  <a href="#installation">Installation</a> •
+  <a href="#documentation">Documentation</a> •
+  <a href="#architecture">Architecture</a> •
+  <a href="#contributing">Contributing</a>
+</p>
+
+---
 
 ## Overview
 
-NetSentry is a comprehensive Android network security and monitoring application that provides real-time network analysis, security scanning, and device management capabilities. Built with Jetpack Compose and Material 3 design principles, NetSentry offers a modern, intuitive interface for monitoring your network activity and protecting your device.
+NetSentry is a comprehensive Android application designed for real-time network monitoring, security analysis, and device management. Built with modern Android development practices using Jetpack Compose and Material 3 design principles, NetSentry provides enterprise-grade network visibility and security features for mobile devices.
+
+### Key Capabilities
+
+- Real-time network traffic monitoring with sub-second refresh rates
+- Advanced security scanning and threat detection
+- WiFi network discovery and analysis
+- Local network device detection
+- Per-application network activity tracking
+- Comprehensive firewall and DNS configuration
+
+## Screenshots
+
+Note: Screenshots will be added after the application is built and tested on a device. See [docs/screenshots/README.md](docs/screenshots/README.md) for instructions on capturing screenshots.
+
+### Planned Screenshots
+
+- Dashboard with real-time network metrics
+- Security scanner showing threat detection
+- Network scanner displaying WiFi networks and devices
+- Activity monitor with per-app usage statistics
+- Settings screen with configuration options
 
 ## Features
 
-### 🏠 Dashboard
-- **Real-time Network Speed Monitoring**
-  - Live download/upload speeds updated every 0.5 seconds
-  - Ping monitoring with color-coded indicators
-  - Animated metrics with smooth transitions
-  - Network speed gauge with visual feedback
+### Dashboard
+### Dashboard
 
-- **Security Overview**
-  - Dynamic security score (0-100) based on real-time analysis
-  - Threat detection and counting
-  - Active connection monitoring
-  - Connected devices counter
+**Real-time Network Speed Monitoring**
+- Live download/upload speeds updated every 0.5 seconds
+- Ping monitoring with color-coded indicators
+- Animated metrics with smooth transitions
+- Network speed gauge with visual feedback
 
-- **Data Usage Tracking**
-  - Visual representation of data consumption
-  - Total usage statistics
-  - Real-time updates using TrafficStats API
+**Security Overview**
+- Dynamic security score (0-100) based on real-time analysis
+- Threat detection and counting
+- Active connection monitoring
+- Connected devices counter
 
-- **Quick Actions**
-  - Scan Network - Instantly navigate to network scanner
-  - Block App - Quick access to security features
-  - View Logs - Access recent activity logs
+**Data Usage Tracking**
+- Visual representation of data consumption
+- Total usage statistics
+- Real-time updates using TrafficStats API
 
-### 🔍 Network Scanner
-- **WiFi Network Discovery**
-  - Scan for nearby WiFi networks
-  - Display SSID, signal strength, and security type
-  - Sort by signal strength, name, or security
-  - Filter by open or secured networks
-  - Current connection information (SSID, IP, signal)
+**Quick Actions**
+- Scan Network - Instantly navigate to network scanner
+- Block App - Quick access to security features
+- View Logs - Access recent activity logs
 
-- **Device Discovery**
-  - Scan local network for connected devices
-  - Display IP addresses for discovered devices
-  - Show gateway/router information
-  - Real-time device count updates
-  - Smart scanning algorithm for performance
+### Network Scanner
 
-### 🛡️ Security
-- **Deep Security Scanning**
-  - Comprehensive app security analysis
-  - Detection of suspicious permission combinations
-  - Network usage anomaly detection
-  - Progress indicator with multi-phase scanning
+**WiFi Network Discovery**
+- Scan for nearby WiFi networks
+- Display SSID, signal strength, and security type
+- Sort by signal strength, name, or security
+- Filter by open or secured networks
+- Current connection information (SSID, IP, signal)
 
-- **Threat Detection**
-  - Flag apps with dangerous permission sets
-  - Identify apps with excessive network usage
-  - Risk level classification (Low, Medium, High)
-  - Detailed reason listing for each flagged app
+**Device Discovery**
+- Scan local network for connected devices
+- Display IP addresses for discovered devices
+- Show gateway/router information
+- Real-time device count updates
+- Smart scanning algorithm for performance
 
-- **Security Metrics**
-  - Total installed apps count
-  - Apps with network access count
-  - Active connections monitoring
-  - Real-time threat counter
+### Security
 
-- **App Management**
-  - View flagged apps with icons and names
-  - Direct uninstall capability
-  - Detailed app information access
+**Deep Security Scanning**
+- Comprehensive app security analysis
+- Detection of suspicious permission combinations
+- Network usage anomaly detection
+- Progress indicator with multi-phase scanning
 
-### 📊 Activity & Logs
-- **Per-App Network Activity**
-  - Network usage tracking for last 5 minutes
-  - Download/upload bytes per app
-  - Active connection count per app
-  - Live updates every second
+**Threat Detection**
+- Flag apps with dangerous permission sets
+- Identify apps with excessive network usage
+- Risk level classification (Low, Medium, High)
+- Detailed reason listing for each flagged app
 
-- **Search & Filter**
-  - Search by app name or package
-  - Sort by data usage, app name, or connections
-  - Real-time filtering
+**Security Metrics**
+- Total installed apps count
+- Apps with network access count
+- Active connections monitoring
+- Real-time threat counter
 
-- **App Information**
-  - Display app icons and names
-  - Formatted data usage (KB, MB, GB)
-  - Connection statistics
+**App Management**
+- View flagged apps with icons and names
+- Direct uninstall capability
+- Detailed app information access
 
-### ⚙️ Settings
-- **Firewall Controls**
-  - Block all by default toggle
-  - Ad blocking enable/disable
-  - Malware blocking toggle
+### Activity & Logs
 
-- **DNS Configuration**
-  - DNS mode selection
-  - Custom DNS IP configuration
-  - Secure DNS (DNS over HTTPS) option
+**Per-App Network Activity**
+- Network usage tracking for last 5 minutes
+- Download/upload bytes per app
+- Active connection count per app
+- Live updates every second
 
-- **Notifications**
-  - Threat detection alerts
-  - New app installation notifications
-  - Weekly summary reports
+**Search & Filter**
+- Search by app name or package
+- Sort by data usage, app name, or connections
+- Real-time filtering
 
-- **Preference Persistence**
-  - Settings saved using DataStore
-  - Automatic restoration on app restart
+**App Information**
+- Display app icons and names
+- Formatted data usage (KB, MB, GB)
+- Connection statistics
 
-### 🎨 UI/UX Features
-- **Material 3 Design**
-  - Modern, minimalist visual language
-  - Dark theme optimized
-  - Electric blue accent colors
-  - Gradient backgrounds
+### Settings
 
-- **Animations**
-  - Smooth transitions between screens
-  - Animated metric updates
-  - Skeleton loaders during data fetch
-  - Pulsing live indicators
-  - Spring-based value animations
+**Firewall Controls**
+- Block all by default toggle
+- Ad blocking enable/disable
+- Malware blocking toggle
 
-- **Navigation**
-  - Bottom navigation bar (4 main sections)
-  - Navigation drawer with profile header
-  - Smooth screen transitions
-  - Deep linking support
+**DNS Configuration**
+- DNS mode selection
+- Custom DNS IP configuration
+- Secure DNS (DNS over HTTPS) option
+
+**Notifications**
+- Threat detection alerts
+- New app installation notifications
+- Weekly summary reports
+
+**Preference Persistence**
+- Settings saved using DataStore
+- Automatic restoration on app restart
+
+### UI/UX Features
+
+**Material 3 Design**
+- Modern, minimalist visual language
+- Dark theme optimized
+- Electric blue accent colors
+- Gradient backgrounds
+
+**Animations**
+- Smooth transitions between screens
+- Animated metric updates
+- Skeleton loaders during data fetch
+- Pulsing live indicators
+- Spring-based value animations
+
+**Navigation**
+- Bottom navigation bar (4 main sections)
+- Navigation drawer with profile header
+- Smooth screen transitions
+- Deep linking support
+
+## Architecture
+
+### Design Pattern
+
+NetSentry follows the MVVM (Model-View-ViewModel) architecture pattern with clear separation of concerns:
+
+- **Model**: Data classes and repository pattern for data management
+- **View**: Jetpack Compose UI components
+- **ViewModel**: Business logic and state management using StateFlow
+
+### Dependency Injection
+
+Hilt is used throughout the application for dependency injection, providing:
+- Scoped instances for services and repositories
+- Simplified testing through dependency abstraction
+- Lifecycle-aware component management
+
+### Reactive Programming
+
+Kotlin Coroutines and Flow enable:
+- Asynchronous operations without callback hell
+- Reactive UI updates via StateFlow
+- Efficient background processing
 
 ## Technical Stack
 
-### Architecture
-- **MVVM Pattern** - ViewModel-based architecture
-- **Dependency Injection** - Hilt for DI
-- **Reactive Programming** - Kotlin Coroutines and Flow
-- **State Management** - StateFlow for UI state
-
 ### Core Technologies
-- **Jetpack Compose** - Modern declarative UI
+
+- **Jetpack Compose** - Modern declarative UI framework
 - **Material 3** - Latest Material Design components
 - **Navigation Compose** - Type-safe navigation
-- **Hilt** - Dependency injection
-- **DataStore** - Preferences persistence
+- **Hilt** - Dependency injection framework
+- **DataStore** - Modern preferences persistence
 - **WorkManager** - Background task scheduling
 
 ### Services & Utilities
+
 - **NetworkMonitor** - Real-time network metrics with 0.5s updates
 - **SecurityAnalyzer** - App security scanning and threat detection
 - **DeviceScanner** - Network device discovery
@@ -275,23 +337,35 @@ Contributions are welcome! Please follow these guidelines:
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
+## Documentation
+
+Complete documentation is available in the `/docs` directory:
+
+- [Architecture Guide](docs/ARCHITECTURE.md) - Detailed architecture and design patterns
+- [API Documentation](docs/API.md) - Service and ViewModel API reference
+- [Security Guide](docs/SECURITY.md) - Security features and threat analysis
+- [User Guide](docs/USER_GUIDE.md) - End-user documentation
+- [Development Guide](docs/DEVELOPMENT.md) - Setup and contribution guidelines
+
 ## Known Issues
 
 - Build system requires specific Android Gradle Plugin configuration
 - Some devices may not support TrafficStats API
 - Network scanning may be limited on some Android versions due to permission restrictions
 
-## Future Enhancements
+## Roadmap
 
-- [ ] Add splash screen with branding
-- [ ] Create About page with app information
-- [ ] Implement onboarding flow for new users
-- [ ] Add more detailed device information (MAC, vendor)
-- [ ] Enhance device type detection (mobile, PC, IoT)
-- [ ] Export logs functionality
-- [ ] Advanced firewall rules
-- [ ] Network packet analysis
-- [ ] Integration with router APIs
+### Planned Features
+
+- Add splash screen with branding
+- Create About page with app information
+- Implement onboarding flow for new users
+- Add more detailed device information (MAC, vendor)
+- Enhance device type detection (mobile, PC, IoT)
+- Export logs functionality
+- Advanced firewall rules
+- Network packet analysis
+- Integration with router APIs
 
 ## License
 
@@ -299,9 +373,9 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Credits
 
-- **Developer**: phoenixdev-512
-- **Design**: Material 3 Design System
-- **Icons**: Material Icons
+**Developer**: phoenixdev-512  
+**Design**: Material 3 Design System  
+**Icons**: Material Icons
 
 ## Support
 
@@ -312,18 +386,19 @@ For issues, questions, or suggestions:
 ## Changelog
 
 ### Version 1.0 (Current)
-- ✅ Launcher icon branding with custom logo
-- ✅ Real-time network speed monitoring (0.5s updates)
-- ✅ Comprehensive security scanning
-- ✅ WiFi network discovery
-- ✅ Device detection on local network
-- ✅ Per-app network activity tracking
-- ✅ Dynamic security score calculation
-- ✅ Settings with persistence
-- ✅ Material 3 UI with animations
-- ✅ Quick actions for common tasks
-- ✅ Navigation drawer with app branding
+
+- Launcher icon branding with custom logo
+- Real-time network speed monitoring (0.5s updates)
+- Comprehensive security scanning
+- WiFi network discovery
+- Device detection on local network
+- Per-app network activity tracking
+- Dynamic security score calculation
+- Settings with persistence
+- Material 3 UI with animations
+- Quick actions for common tasks
+- Navigation drawer with app branding
 
 ---
 
-Made with ❤️ by phoenixdev-512
+Copyright (c) 2025 phoenixdev-512. All rights reserved.
