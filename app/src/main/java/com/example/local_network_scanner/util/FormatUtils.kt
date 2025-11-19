@@ -91,4 +91,18 @@ object FormatUtils {
         val percentage = (value / total) * 100
         return String.format("%.1f%%", percentage)
     }
+    
+    /**
+     * Format timestamp to relative time (e.g., "5m ago", "2h ago")
+     */
+    fun formatTimestamp(timestamp: Long): String {
+        if (timestamp == 0L) return "Never"
+        val diff = System.currentTimeMillis() - timestamp
+        return when {
+            diff < 60_000 -> "Just now"
+            diff < 3600_000 -> "${diff / 60_000}m ago"
+            diff < 86400_000 -> "${diff / 3600_000}h ago"
+            else -> "${diff / 86400_000}d ago"
+        }
+    }
 }

@@ -59,18 +59,45 @@ fun DashboardScreen(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            item { 
-                SpeedTestWidget(
-                    isMonitoring = isMonitoring,
-                    networkStats = networkStats,
-                    downloadSpeed = networkSpeed.downloadMbps,
-                    uploadSpeed = networkSpeed.uploadMbps,
-                    ping = ping
-                ) 
+            item {
+                // Use new SpeedTestWidget with unit toggle
+                val speedUnit by viewModel.speedUnit.collectAsState()
+                com.example.local_network_scanner.ui.components.SpeedTestWidget(
+                    networkSpeed = networkSpeed,
+                    ping = ping,
+                    speedUnit = speedUnit,
+                    onToggleUnit = { viewModel.toggleSpeedUnit() }
+                )
             }
-            item { SecurityOverviewWidget(networkStats) }
-            item { DataUsageWidget(networkStats) }
-            item { ConnectedDevicesWidget(networkStats) }
+            item {
+                // Use new SecurityOverviewWidget with scan button
+                val securityScore by viewModel.securityScore.collectAsState()
+                val isScanning by viewModel.isSecurityScanning.collectAsState()
+                val lastScanTime by viewModel.lastSecurityScanTime.collectAsState()
+                com.example.local_network_scanner.ui.components.SecurityOverviewWidget(
+                    securityScore = securityScore,
+                    isScanning = isScanning,
+                    lastScanTime = lastScanTime,
+                    onScanClick = { viewModel.startSecurityScan() }
+                )
+            }
+            item {
+                // Use new DataUsageWidget with time range
+                val dataUsage by viewModel.dataUsageStats.collectAsState()
+                val timeRange by viewModel.selectedTimeRange.collectAsState()
+                com.example.local_network_scanner.ui.components.DataUsageWidget(
+                    dataUsage = dataUsage,
+                    selectedTimeRange = timeRange,
+                    onTimeRangeChange = { viewModel.setTimeRange(it) }
+                )
+            }
+            item {
+                // Use new ConnectedDevicesWidget
+                val devicesCount by viewModel.connectedDevicesCount.collectAsState()
+                com.example.local_network_scanner.ui.components.ConnectedDevicesWidget(
+                    devicesCount = devicesCount
+                )
+            }
             item { QuickActionsWidget(navController, viewModel) }
         }
     }

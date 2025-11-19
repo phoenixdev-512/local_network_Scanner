@@ -1,8 +1,14 @@
 package com.example.local_network_scanner.ui.viewmodel
 
 import android.net.TrafficStats
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.local_network_scanner.data.datastore.SettingsRepository
+import com.example.local_network_scanner.data.model.DataUsageStats
+import com.example.local_network_scanner.data.model.SpeedUnit
+import com.example.local_network_scanner.data.model.TimeRange
+import com.example.local_network_scanner.services.DataUsageMonitor
 import com.example.local_network_scanner.services.DeviceScanner
 import com.example.local_network_scanner.services.NetworkMonitor
 import com.example.local_network_scanner.services.SecurityAnalyzer
@@ -10,8 +16,11 @@ import com.example.local_network_scanner.ui.NetworkStats
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -24,7 +33,9 @@ import javax.inject.Inject
 class DashboardViewModel @Inject constructor(
     private val networkMonitor: NetworkMonitor,
     private val securityAnalyzer: SecurityAnalyzer,
-    private val deviceScanner: DeviceScanner
+    private val deviceScanner: DeviceScanner,
+    private val dataUsageMonitor: DataUsageMonitor,
+    private val settingsRepository: SettingsRepository
 ) : ViewModel() {
     
     private val _isMonitoring = MutableStateFlow(false)
@@ -43,6 +54,25 @@ class DashboardViewModel @Inject constructor(
     val appsWithNetworkAccess = securityAnalyzer.appsWithNetworkAccess
     val activeConnections = securityAnalyzer.activeConnections
     
+    // Security scanning state
+    private val _isSecurityScanning = MutableStateFlow(false)
+    val isSecurityScanning: StateFlow<Boolean> = _isSecurityScanning
+    
+    private val _lastSecurityScanTime = MutableStateFlow(0L)
+    val lastSecurityScanTime: StateFlow<Long> = _lastSecurityScanTime
+    
+    // Speed unit from settings
+    val speedUnit = settingsRepository.getNetworkSpeedUnit().map { unitString ->
+        SpeedUnit.values().find { it.label == unitString } ?: SpeedUnit.MBPS
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), SpeedUnit.MBPS)
+    
+    // Data usage
+    private val _dataUsageStats = MutableStateFlow(DataUsageStats())
+    val dataUsageStats: StateFlow<DataUsageStats> = _dataUsageStats
+    
+    private val _selectedTimeRange = MutableStateFlow(TimeRange.TODAY)
+    val selectedTimeRange: StateFlow<TimeRange> = _selectedTimeRange
+    
     // Device scanner
     val connectedDevicesCount = deviceScanner.connectedDevicesCount
     
@@ -57,8 +87,21 @@ class DashboardViewModel @Inject constructor(
             securityAnalyzer.calculateSecurityScore()
         }
         
+        // Load initial data
+        loadInitialData()
+        
         // Start periodic updates for dashboard stats
         startPeriodicUpdates()
+    }
+    
+    private fun loadInitialData() {
+        viewModelScope.launch {
+            // Load last security scan time
+            _lastSecurityScanTime.value = getLastScanTime()
+            
+            // Load initial data usage
+            updateDataUsage()
+        }
     }
     
     private fun startPeriodicUpdates() {
@@ -83,6 +126,14 @@ class DashboardViewModel @Inject constructor(
             while (isActive && _isMonitoring.value) {
                 deviceScanner.estimateDeviceCount()
                 delay(10000)
+            }
+        }
+        
+        // Update data usage every minute
+        viewModelScope.launch {
+            while (isActive && _isMonitoring.value) {
+                updateDataUsage()
+                delay(60_000)
             }
         }
     }
@@ -145,6 +196,68 @@ class DashboardViewModel @Inject constructor(
         viewModelScope.launch {
             deviceScanner.scanNetwork()
         }
+    }
+    
+    fun startSecurityScan() {
+        viewModelScope.launch {
+            _isSecurityScanning.value = true
+            try {
+                // Perform deep security scan
+                val result = securityAnalyzer.performDeepScan()
+                
+                // Update security score (already updated in SecurityAnalyzer)
+                
+                // Save scan time
+                _lastSecurityScanTime.value = System.currentTimeMillis()
+                saveLastScanTime(_lastSecurityScanTime.value)
+                
+            } catch (e: Exception) {
+                Log.e("DashboardViewModel", "Security scan failed", e)
+            } finally {
+                _isSecurityScanning.value = false
+            }
+        }
+    }
+    
+    fun toggleSpeedUnit() {
+        viewModelScope.launch {
+            val currentUnit = speedUnit.value
+            val nextUnit = when (currentUnit) {
+                SpeedUnit.MBPS -> SpeedUnit.MBS
+                SpeedUnit.MBS -> SpeedUnit.KBPS
+                SpeedUnit.KBPS -> SpeedUnit.KBS
+                SpeedUnit.KBS -> SpeedUnit.MBPS
+            }
+            settingsRepository.setNetworkSpeedUnit(nextUnit.label)
+        }
+    }
+    
+    fun setTimeRange(range: TimeRange) {
+        _selectedTimeRange.value = range
+        viewModelScope.launch {
+            updateDataUsage()
+        }
+    }
+    
+    private suspend fun updateDataUsage() {
+        try {
+            val stats = dataUsageMonitor.getDataUsageStats(_selectedTimeRange.value)
+            _dataUsageStats.value = stats
+        } catch (e: Exception) {
+            Log.e("DashboardViewModel", "Failed to update data usage", e)
+        }
+    }
+    
+    private suspend fun getLastScanTime(): Long {
+        // Load from DataStore or SharedPreferences
+        // For now, return 0 (never scanned)
+        return 0L
+    }
+    
+    private suspend fun saveLastScanTime(time: Long) {
+        // Save to DataStore or SharedPreferences
+        // For now, just log
+        Log.d("DashboardViewModel", "Security scan completed at $time")
     }
     
     override fun onCleared() {
