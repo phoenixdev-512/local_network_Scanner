@@ -2,29 +2,54 @@ package com.example.local_network_scanner.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// SENET Premium Color Palette System
+// SENET Neo-Glassmorphism Color Palette System
 object SenetColors {
-    // Primary Navy Blue Palette
-    val NavyDark = Color(0xFF0A1931)      // Deep Navy
+    // Primary Navy Blue Palette - Deep navy to black gradients
+    val NavyDark = Color(0xFF0A1931)      // Deep Navy (primary background start)
+    val NavyMid = Color(0xFF232946)       // Mid Navy (background transition)
     val NavyBase = Color(0xFF1E3A8A)      // Base Navy
-    val NavyLight = Color(0xFF3B82F6)     // Light Navy
+    val NavyLight = Color(0xFF3B82F6)     // Light Navy / Neon Blue accent
+    
+    // Neon Blue Accent Palette - For highlights, buttons, and glow effects
+    val NeonBlue = Color(0xFF2CCEF0)      // Bright neon blue primary
+    val NeonBlueAlt = Color(0xFF3B82F6)   // Alternative neon blue
+    val ElectricBlue = Color(0xFF0EA5E9)  // Electric blue for active states
+    
+    // Glassmorphism Surface Colors - Semi-transparent with blur
+    val GlassSurface = Color(0x0FFFFFFF)  // White with 6% opacity for glass cards
+    val GlassSurfaceLight = Color(0x1AFFFFFF) // White with 10% opacity for elevated glass
+    val GlassStroke = Color(0x80)         // Neon blue stroke at 50% for glass borders
     
     // Neutral Palette
     val Black = Color(0xFF000000)
+    val TrueBlack = Color(0xFF000000)
     val WhitePure = Color(0xFFFFFFFF)
     val DarkGray = Color(0xFF1A1A1A)
     val LightGray = Color(0xFFF5F5F5)
     val MediumGray = Color(0xFF8C8C8C)
     
-    // Semantic Colors
+    // Text Colors - High contrast for readability
+    val TextPrimary = Color(0xFFFFFFFF)   // Pure white for primary text
+    val TextSecondary = Color(0xFFB8C1D0) // Soft white-blue for secondary text
+    val TextTertiary = Color(0xFF8C8C8C)  // Gray for tertiary text
+    
+    // Semantic Colors with Glow variants
     val Success = Color(0xFF00C853)
+    val SuccessGlow = Color(0xFF00E676)   // Brighter for glow effects
     val Warning = Color(0xFFFFD600)
+    val WarningGlow = Color(0xFFFFEA00)
     val Error = Color(0xFFD32F2F)
+    val ErrorGlow = Color(0xFFF44336)
     val Info = Color(0xFF1E88E5)
     
-    // Gradients
-    val darkGradient = listOf(NavyDark, NavyBase)
+    // Gradients for backgrounds
+    val darkGradientStart = NavyDark
+    val darkGradientMid = Color(0xFF1A2332)
+    val darkGradientEnd = Black
     val lightGradient = listOf(WhitePure, LightGray)
+    
+    // Legacy support
+    val darkGradient = listOf(NavyDark, NavyMid)
 }
 
 // Legacy colors (kept for compatibility)

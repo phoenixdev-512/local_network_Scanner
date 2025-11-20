@@ -19,10 +19,10 @@ import com.example.local_network_scanner.ui.theme.SenetColors
 import kotlinx.coroutines.delay
 
 /**
- * SENET Splash Screen
+ * SENET Neo-Glassmorphism Splash Screen
  * 
- * Modern splash screen with premium branding, smooth animations,
- * and gradient background. Automatically transitions to main screen.
+ * Premium splash screen with SENET branding, glowing animations,
+ * and deep navy gradient background.
  */
 @Composable
 fun SplashScreen(
@@ -30,13 +30,14 @@ fun SplashScreen(
 ) {
     var logoVisible by remember { mutableStateOf(false) }
     var textVisible by remember { mutableStateOf(false) }
+    var glowVisible by remember { mutableStateOf(false) }
     
-    // Logo scale animation
+    // Logo scale animation with spring physics
     val logoScale by animateFloatAsState(
         targetValue = if (logoVisible) 1f else 0.5f,
-        animationSpec = tween(
-            durationMillis = 1000,
-            easing = SenetMotionSpecs.emphasizedEasing
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
         ),
         label = "logo_scale"
     )
@@ -55,10 +56,24 @@ fun SplashScreen(
         label = "text_alpha"
     )
     
+    // Glow pulse animation
+    val infiniteTransition = rememberInfiniteTransition(label = "glow_pulse")
+    val glowAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.3f,
+        targetValue = 0.8f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1500, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "glow_alpha"
+    )
+    
     // Launch animations and navigation
     LaunchedEffect(Unit) {
         delay(100)
         logoVisible = true
+        delay(300)
+        glowVisible = true
         delay(400)
         textVisible = true
         delay(1500)
@@ -70,13 +85,33 @@ fun SplashScreen(
             .fillMaxSize()
             .background(
                 brush = Brush.verticalGradient(
-                    colors = SenetColors.darkGradient,
-                    startY = 0f,
-                    endY = Float.POSITIVE_INFINITY
+                    colors = listOf(
+                        SenetColors.darkGradientStart,
+                        SenetColors.darkGradientMid,
+                        SenetColors.darkGradientEnd
+                    )
                 )
             ),
         contentAlignment = Alignment.Center
     ) {
+        // Glowing background circle
+        if (glowVisible) {
+            Box(
+                modifier = Modifier
+                    .size(300.dp)
+                    .alpha(glowAlpha)
+                    .background(
+                        brush = Brush.radialGradient(
+                            colors = listOf(
+                                SenetColors.NeonBlue.copy(alpha = 0.3f),
+                                SenetColors.NeonBlue.copy(alpha = 0.1f),
+                                androidx.compose.ui.graphics.Color.Transparent
+                            )
+                        )
+                    )
+            )
+        }
+        
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
@@ -96,7 +131,7 @@ fun SplashScreen(
                     text = "SENET",
                     style = MaterialTheme.typography.displayLarge,
                     fontWeight = FontWeight.Bold,
-                    color = SenetColors.NavyLight
+                    color = SenetColors.NeonBlue
                 )
                 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -104,7 +139,7 @@ fun SplashScreen(
                 Text(
                     text = "Security Network Scanner",
                     style = MaterialTheme.typography.bodyLarge,
-                    color = SenetColors.WhitePure.copy(alpha = 0.7f)
+                    color = SenetColors.TextSecondary
                 )
             }
         }

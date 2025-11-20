@@ -12,12 +12,15 @@ import androidx.compose.ui.graphics.graphicsLayer
  * SENET Motion Specifications
  * 
  * Implements Material Design 3 motion system with physics-based animations
- * for a premium, responsive user experience.
+ * for a premium, responsive neo-glassmorphism user experience.
+ * 
+ * Features spring-based, bouncy, tactile animations for all UI transitions.
  */
 object SenetMotionSpecs {
     // Standard animations for all transitions
     val standardEasing = CubicBezierEasing(0.4f, 0.0f, 0.2f, 1.0f)
     val emphasizedEasing = CubicBezierEasing(0.3f, 0.0f, 0.8f, 0.15f)
+    val deceleratedEasing = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f)
     
     // Duration specs (in milliseconds)
     object Durations {
@@ -25,6 +28,24 @@ object SenetMotionSpecs {
         const val MEDIUM = 300
         const val LONG = 500
         const val EXTRA_LONG = 700
+    }
+    
+    // Spring specifications for physics-based animations
+    object Springs {
+        val BOUNCY = spring<Float>(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        )
+        
+        val SMOOTH = spring<Float>(
+            dampingRatio = Spring.DampingRatioNoBouncy,
+            stiffness = Spring.StiffnessMedium
+        )
+        
+        val TACTILE = spring<Float>(
+            dampingRatio = Spring.DampingRatioLowBouncy,
+            stiffness = Spring.StiffnessMediumLow
+        )
     }
     
     /**
@@ -66,7 +87,7 @@ object SenetMotionSpecs {
     }
     
     /**
-     * Container Transform - Element expansion animation
+     * Container Transform - Element expansion animation with scale and blur
      */
     fun containerTransform(
         durationMillis: Int = Durations.LONG
@@ -90,6 +111,35 @@ object SenetMotionSpecs {
             ) + scaleOut(
                 targetScale = 0.9f,
                 animationSpec = tween(durationMillis = durationMillis / 2)
+            )
+        )
+    }
+    
+    /**
+     * Fade Through - Cross-fade with scale for smooth transitions
+     */
+    fun fadeThrough(
+        durationMillis: Int = Durations.MEDIUM
+    ): ContentTransform {
+        return ContentTransform(
+            targetContentEnter = fadeIn(
+                animationSpec = tween(
+                    durationMillis = durationMillis,
+                    delayMillis = durationMillis / 2,
+                    easing = standardEasing
+                )
+            ) + scaleIn(
+                initialScale = 0.92f,
+                animationSpec = tween(durationMillis, easing = standardEasing)
+            ),
+            initialContentExit = fadeOut(
+                animationSpec = tween(
+                    durationMillis = durationMillis / 2,
+                    easing = standardEasing
+                )
+            ) + scaleOut(
+                targetScale = 0.92f,
+                animationSpec = tween(durationMillis / 2, easing = standardEasing)
             )
         )
     }
