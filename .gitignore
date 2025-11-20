@@ -16,3 +16,13 @@ local.properties
 
 # Backup files
 *.bak
+*.backup
+*.orig
+*.rej
+*~
+
+# Temporary documentation (to avoid conflicts from multiple iterations)
+*_TEMP.md
+*_OLD.md
+*_NEW.md
+*_DRAFT.md
