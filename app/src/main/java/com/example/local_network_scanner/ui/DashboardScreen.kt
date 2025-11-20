@@ -22,15 +22,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.local_network_scanner.ui.theme.*
+import com.example.local_network_scanner.ui.components.*
 import com.example.local_network_scanner.ui.viewmodel.DashboardViewModel
 import com.example.local_network_scanner.util.PermissionHelper
 
 /**
- * Dashboard screen with Speedtest-inspired design
- * Features real-time metrics, network monitoring, and quick actions
+ * Neo-Glassmorphism Dashboard Screen
+ * Premium smart dashboard with frosted glass cards, glowing gauges, and animated metrics
  */
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -54,24 +56,43 @@ fun DashboardScreen(
         hasUsageStatsPermission.value = PermissionHelper.hasUsageStatsPermission(context)
     }
     
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .background(
                 brush = Brush.verticalGradient(
-                    colors = listOf(DeepNavy, GradientMiddle, TrueBlack)
+                    colors = listOf(
+                        SenetColors.darkGradientStart,
+                        SenetColors.darkGradientMid,
+                        SenetColors.darkGradientEnd
+                    )
                 )
             )
     ) {
-        // Header
-        DashboardHeader()
-        
-        // Widgets
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            // Glassmorphic Header
+            item {
+                DashboardHeader(
+                    userName = "Network User",
+                    greeting = "Hello",
+                    trailingContent = {
+                        IconButton(onClick = { 
+                            Toast.makeText(context, "Settings", Toast.LENGTH_SHORT).show()
+                        }) {
+                            Icon(
+                                Icons.Filled.Settings,
+                                contentDescription = "Settings",
+                                tint = SenetColors.TextPrimary
+                            )
+                        }
+                    }
+                )
+            }
+            
             // Permission banner if not granted
             if (!hasUsageStatsPermission.value) {
                 item {
@@ -82,7 +103,6 @@ fun DashboardScreen(
                             }
                         },
                         onDismiss = {
-                            // Recheck permission after user returns
                             hasUsageStatsPermission.value = 
                                 PermissionHelper.hasUsageStatsPermission(context)
                         }
@@ -90,19 +110,192 @@ fun DashboardScreen(
                 }
             }
             
+            // Quick Stats Row
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    StatCard(
+                        label = "Download",
+                        value = "${String.format("%.1f", networkSpeed.downloadMbps)} Mbps",
+                        modifier = Modifier.weight(1f),
+                        valueColor = SenetColors.SuccessGlow
+                    )
+                    StatCard(
+                        label = "Upload",
+                        value = "${String.format("%.1f", networkSpeed.uploadMbps)} Mbps",
+                        modifier = Modifier.weight(1f),
+                        valueColor = SenetColors.ElectricBlue
+                    )
+                    StatCard(
+                        label = "Ping",
+                        value = if (ping >= 0) "$ping ms" else "--",
+                        modifier = Modifier.weight(1f),
+                        valueColor = when {
+                            ping < 0 -> SenetColors.MediumGray
+                            ping < 50 -> SenetColors.SuccessGlow
+                            ping < 100 -> SenetColors.WarningGlow
+                            else -> SenetColors.ErrorGlow
+                        }
+                    )
+                }
+            }
+            
+            // Main Network Speed Gauge
             item { 
-                SpeedTestWidget(
-                    isMonitoring = isMonitoring,
-                    networkStats = networkStats,
+                SpeedGaugeWidget(
                     downloadSpeed = networkSpeed.downloadMbps,
                     uploadSpeed = networkSpeed.uploadMbps,
-                    ping = ping
+                    isMonitoring = isMonitoring
                 ) 
             }
-            item { SecurityOverviewWidget(networkStats) }
+            
+            // Security Score Gauge
+            item { 
+                SecurityGaugeWidget(
+                    securityScore = networkStats.securityScore,
+                    onClick = { navController?.navigate("security") }
+                )
+            }
+            
+            // Data Usage Widget
             item { DataUsageWidget(networkStats) }
+            
+            // Connected Devices Widget
             item { ConnectedDevicesWidget(networkStats) }
+            
+            // Quick Actions
             item { QuickActionsWidget(navController, viewModel) }
+        }
+    }
+}
+
+/**
+ * Speed Gauge Widget - Main glassmorphic gauge showing network speed
+ */
+@Composable
+private fun SpeedGaugeWidget(
+    downloadSpeed: Double,
+    uploadSpeed: Double,
+    isMonitoring: Boolean
+) {
+    GlassCard(
+        modifier = Modifier.fillMaxWidth(),
+        withBorder = true
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // Header with Live indicator
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Network Speed",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = SenetColors.TextPrimary
+                )
+                
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    modifier = Modifier
+                        .background(
+                            color = SenetColors.SuccessGlow.copy(alpha = 0.15f),
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                ) {
+                    GlowingDot(isActive = isMonitoring, color = SenetColors.SuccessGlow)
+                    Text(
+                        "LIVE",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = SenetColors.SuccessGlow,
+                        letterSpacing = 1.2.sp
+                    )
+                }
+            }
+            
+            // Main gauge
+            GlowingGauge(
+                value = downloadSpeed.toFloat(),
+                maxValue = 100f,
+                label = "Download Speed",
+                unit = "Mbps",
+                size = 200.dp
+            )
+        }
+    }
+}
+
+/**
+ * Security Gauge Widget - Glassmorphic security score display
+ */
+@Composable
+private fun SecurityGaugeWidget(
+    securityScore: Int,
+    onClick: () -> Unit = {}
+) {
+    val scoreColor = when {
+        securityScore >= 80 -> SenetColors.SuccessGlow
+        securityScore >= 60 -> SenetColors.WarningGlow
+        else -> SenetColors.ErrorGlow
+    }
+    
+    val scoreStatus = when {
+        securityScore >= 80 -> "Secure"
+        securityScore >= 60 -> "Moderate"
+        else -> "At Risk"
+    }
+    
+    GlassCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        withBorder = true
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Security Score",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = SenetColors.TextPrimary
+                )
+                Icon(
+                    Icons.Filled.Security,
+                    contentDescription = null,
+                    tint = scoreColor,
+                    modifier = Modifier.size(28.dp)
+                )
+            }
+            
+            GlowingGauge(
+                value = securityScore.toFloat(),
+                maxValue = 100f,
+                label = scoreStatus,
+                unit = "/100",
+                size = 180.dp
+            )
+            
+            Text(
+                text = "Tap for details",
+                fontSize = 12.sp,
+                color = SenetColors.TextTertiary
+            )
         }
     }
 }
@@ -454,16 +647,12 @@ private fun SecurityMetric(label: String, value: String, color: Color) {
 
 @Composable
 private fun DataUsageWidget(networkStats: NetworkStats) {
-    Card(
+    GlassCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceDarkGray),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        withBorder = true
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(24.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -472,37 +661,23 @@ private fun DataUsageWidget(networkStats: NetworkStats) {
             ) {
                 Text(
                     text = "Data Usage Today",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = TextPrimary,
-                    fontWeight = FontWeight.SemiBold
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = SenetColors.TextPrimary
                 )
                 Icon(
                     Icons.Filled.DataUsage,
                     contentDescription = null,
-                    tint = InfoCyan,
+                    tint = SenetColors.ElectricBlue,
                     modifier = Modifier.size(28.dp)
                 )
             }
             
-            Spacer(modifier = Modifier.height(20.dp))
-            
-            // Data usage bar with animation
-            val animatedProgress by animateFloatAsState(
-                targetValue = (networkStats.dataUsedMB / networkStats.dataTotalMB).coerceIn(0f, 1f),
-                animationSpec = tween(durationMillis = 800, easing = FastOutSlowInEasing),
-                label = "dataProgress"
+            // Animated progress bar
+            AnimatedProgressBar(
+                progress = (networkStats.dataUsedMB / networkStats.dataTotalMB).coerceIn(0f, 1f),
+                height = 14.dp
             )
-            
-            LinearProgressIndicator(
-                progress = { animatedProgress },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(14.dp),
-                color = ElectricBlue,
-                trackColor = CardBackground,
-            )
-            
-            Spacer(modifier = Modifier.height(12.dp))
             
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -510,15 +685,15 @@ private fun DataUsageWidget(networkStats: NetworkStats) {
             ) {
                 Text(
                     text = "%.2f MB used".format(networkStats.dataUsedMB),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = TextSecondary,
-                    fontWeight = FontWeight.Medium
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = SenetColors.TextSecondary
                 )
                 Text(
                     text = "%.2f MB total".format(networkStats.dataTotalMB),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = TextSecondary,
-                    fontWeight = FontWeight.Medium
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = SenetColors.TextSecondary
                 )
             }
         }
@@ -528,79 +703,64 @@ private fun DataUsageWidget(networkStats: NetworkStats) {
 @Composable
 private fun ConnectedDevicesWidget(networkStats: NetworkStats) {
     val context = LocalContext.current
-    Card(
+    val animatedCount by animateIntAsState(
+        targetValue = networkStats.connectedDevices,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = "deviceCount"
+    )
+    
+    GlassCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceDarkGray),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        withBorder = true
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(24.dp)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            Column(
+                modifier = Modifier.weight(1f)
             ) {
-                Column {
-                    Text(
-                        text = "Connected Devices",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = TextPrimary,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Text(
-                        text = "On your local network",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = TextTertiary
-                    )
-                }
-                
-                // Prominent device count with animation
-                val animatedCount by animateIntAsState(
-                    targetValue = networkStats.connectedDevices,
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioMediumBouncy,
-                        stiffness = Spring.StiffnessLow
-                    ),
-                    label = "deviceCount"
+                Text(
+                    text = "Connected Devices",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = SenetColors.TextPrimary
                 )
-                
-                Box(
-                    modifier = Modifier
-                        .size(90.dp)
-                        .background(
-                            brush = Brush.radialGradient(
-                                colors = listOf(
-                                    ElectricBlue.copy(alpha = 0.25f),
-                                    ElectricBlue.copy(alpha = 0.05f),
-                                    androidx.compose.ui.graphics.Color.Transparent
-                                )
-                            ),
-                            shape = CircleShape
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = animatedCount.toString(),
-                        style = MaterialTheme.typography.displayLarge,
-                        color = ElectricBlue,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = "On your local network",
+                    fontSize = 14.sp,
+                    color = SenetColors.TextTertiary
+                )
             }
             
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            Text(
-                text = "Tap to view detailed device information",
-                style = MaterialTheme.typography.bodyMedium,
-                color = TextTertiary,
-                modifier = Modifier.fillMaxWidth()
-            )
+            // Glowing device count
+            Box(
+                modifier = Modifier
+                    .size(90.dp)
+                    .background(
+                        brush = Brush.radialGradient(
+                            colors = listOf(
+                                SenetColors.NeonBlue.copy(alpha = 0.25f),
+                                SenetColors.NeonBlue.copy(alpha = 0.05f),
+                                Color.Transparent
+                            )
+                        ),
+                        shape = CircleShape
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = animatedCount.toString(),
+                    fontSize = 48.sp,
+                    color = SenetColors.NeonBlue,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
     }
 }
@@ -608,25 +768,19 @@ private fun ConnectedDevicesWidget(networkStats: NetworkStats) {
 @Composable
 private fun QuickActionsWidget(navController: NavController?, viewModel: DashboardViewModel) {
     val context = LocalContext.current
-    Card(
+    GlassCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceDarkGray),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        withBorder = true
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(24.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
                 text = "Quick Actions",
-                style = MaterialTheme.typography.titleLarge,
-                color = TextPrimary,
-                fontWeight = FontWeight.SemiBold
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = SenetColors.TextPrimary
             )
-            
-            Spacer(modifier = Modifier.height(20.dp))
             
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -667,25 +821,36 @@ private fun QuickActionButton(
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.width(80.dp)
+        modifier = Modifier.width(90.dp)
     ) {
-        FilledIconButton(
-            onClick = onClick,
-            colors = IconButtonDefaults.filledIconButtonColors(
-                containerColor = CardBackground
-            )
+        Box(
+            modifier = Modifier
+                .size(56.dp)
+                .background(
+                    brush = Brush.radialGradient(
+                        colors = listOf(
+                            SenetColors.NeonBlue.copy(alpha = 0.2f),
+                            SenetColors.NeonBlue.copy(alpha = 0.05f)
+                        )
+                    ),
+                    shape = CircleShape
+                )
+                .clickable(onClick = onClick),
+            contentAlignment = Alignment.Center
         ) {
             Icon(
                 icon,
                 contentDescription = label,
-                tint = ElectricBlue
+                tint = SenetColors.NeonBlue,
+                modifier = Modifier.size(28.dp)
             )
         }
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(6.dp))
         Text(
             text = label,
-            style = MaterialTheme.typography.bodySmall,
-            color = TextSecondary
+            fontSize = 12.sp,
+            color = SenetColors.TextSecondary,
+            fontWeight = FontWeight.Medium
         )
     }
 }
@@ -695,53 +860,61 @@ private fun PermissionBanner(
     onRequestPermission: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    Card(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onRequestPermission() },
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = WarningOrange.copy(alpha = 0.15f)
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            .clickable { onRequestPermission() }
+            .background(
+                brush = Brush.horizontalGradient(
+                    colors = listOf(
+                        SenetColors.WarningGlow.copy(alpha = 0.15f),
+                        SenetColors.WarningGlow.copy(alpha = 0.08f)
+                    )
+                ),
+                shape = RoundedCornerShape(22.dp)
+            )
+            .border(
+                width = 1.dp,
+                color = SenetColors.WarningGlow.copy(alpha = 0.4f),
+                shape = RoundedCornerShape(22.dp)
+            )
+            .padding(20.dp)
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(
                 modifier = Modifier.weight(1f),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Icon(
                     Icons.Filled.Warning,
                     contentDescription = null,
-                    tint = WarningOrange,
+                    tint = SenetColors.WarningGlow,
                     modifier = Modifier.size(32.dp)
                 )
-                Spacer(modifier = Modifier.width(16.dp))
                 Column {
                     Text(
                         text = "Permission Required",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = TextPrimary,
+                        fontSize = 16.sp,
+                        color = SenetColors.TextPrimary,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = "Grant usage access for accurate data statistics",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = TextSecondary
+                        fontSize = 13.sp,
+                        color = SenetColors.TextSecondary
                     )
                 }
             }
             Icon(
                 Icons.Filled.ChevronRight,
                 contentDescription = "Open settings",
-                tint = WarningOrange,
+                tint = SenetColors.WarningGlow,
                 modifier = Modifier.size(24.dp)
             )
         }
