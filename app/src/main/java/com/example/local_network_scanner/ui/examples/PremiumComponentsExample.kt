@@ -162,17 +162,18 @@ fun PremiumComponentsExample() {
                 
                 // Animated Container Example
                 item {
-                    AnimatedContainer {
-                        PremiumCard {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp)
-                            ) {
-                                Text(
-                                    "Animated Container",
-                                    style = MaterialTheme.typography.titleLarge,
-                                    fontWeight = FontWeight.Bold
+                    AnimatedContainer(
+                        content = {
+                            PremiumCard {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp)
+                                ) {
+                                    Text(
+                                        "Animated Container",
+                                        style = MaterialTheme.typography.titleLarge,
+                                        fontWeight = FontWeight.Bold
                                 )
                                 Spacer(modifier = Modifier.height(8.dp))
                                 Text(
@@ -190,7 +191,8 @@ fun PremiumComponentsExample() {
                                 }
                             }
                         }
-                    }
+                        }
+                    )
                 }
                 
                 // Confirmation Ripple Example

@@ -67,10 +67,12 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel = 
             Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
                  // ... (DNS options code from before)
             }
-            if (dnsSettings.dnsMode == "CUSTOM") {
+            if (dnsSettings.mode == "Custom") {
                 TextField(
-                    value = dnsSettings.customDnsIp,
-                    onValueChange = { ip -> viewModel.setCustomDnsIp(ip) },
+                    value = dnsSettings.customPrimary,
+                    onValueChange = { primary -> 
+                        viewModel.setCustomDnsIp(primary, dnsSettings.customSecondary)
+                    },
                     label = { Text("Custom DNS IP") },
                     modifier = Modifier.fillMaxWidth().padding(16.dp)
                 )

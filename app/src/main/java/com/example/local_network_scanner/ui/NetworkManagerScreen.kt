@@ -309,32 +309,6 @@ fun SignalStrengthIndicator(strength: Int) {
     }
 }
 
-// Helper functions
-private fun formatBytes(bytes: Long): String {
-    return when {
-        bytes < 1024 -> "$bytes B"
-        bytes < 1024 * 1024 -> "${bytes / 1024} KB"
-        bytes < 1024 * 1024 * 1024 -> "${bytes / (1024 * 1024)} MB"
-        else -> "%.2f GB".format(bytes / (1024.0 * 1024.0 * 1024.0))
-    }
-}
-
-private fun formatRelativeTime(timestamp: Long): String {
-    val now = System.currentTimeMillis()
-    val diff = now - timestamp
-    val seconds = diff / 1000
-    val minutes = seconds / 60
-    val hours = minutes / 60
-    val days = hours / 24
-    
-    return when {
-        days > 0 -> "$days days ago"
-        hours > 0 -> "$hours hours ago"
-        minutes > 0 -> "$minutes minutes ago"
-        else -> "Just now"
-    }
-}
-
 @Composable
 private fun NetworkPoliciesTab(
     policies: List<NetworkPolicy>,

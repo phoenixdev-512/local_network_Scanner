@@ -60,6 +60,8 @@ val StatusGood = Color(0xFF76FF03)
 val StatusFair = SenetColors.Warning
 val StatusPoor = SenetColors.Error
 
+val DangerRed = Color(0xFFD32F2F)
+
 val GradientStart = SenetColors.NavyDark
 val GradientMiddle = Color(0xFF1A2332)
 val GradientEnd = SenetColors.Black

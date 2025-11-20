@@ -179,6 +179,33 @@ class SettingsViewModel @Inject constructor(
     val logLevel = settingsRepository.getLogLevel()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "Error")
 
+    // Additional settings for firewall and DNS
+    val blockAllByDefault = settingsRepository.getAutoBlockThreats()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+    
+    val enableWeeklySummary = settingsRepository.getWeeklySummary()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+    
+    data class DnsSettings(
+        val mode: String = "Auto",
+        val enableSecureDns: Boolean = false,
+        val customPrimary: String = "",
+        val customSecondary: String = ""
+    )
+    
+    val dnsSettings = combine(
+        defaultDns,
+        customDnsPrimary,
+        customDnsSecondary
+    ) { dns, primary, secondary ->
+        DnsSettings(
+            mode = dns,
+            enableSecureDns = dns != "None",
+            customPrimary = primary,
+            customSecondary = secondary
+        )
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), DnsSettings())
+
     // Check if user is admin
     val isAdmin = profileRepository.activeProfile
         .map { profile -> profile?.role == com.example.local_network_scanner.data.db.UserRole.ADMIN }
@@ -347,6 +374,32 @@ class SettingsViewModel @Inject constructor(
 
     fun setLogLevel(level: String) = viewModelScope.launch {
         settingsRepository.setLogLevel(level)
+    }
+
+    // Additional setter methods
+    fun setBlockAllByDefault(enabled: Boolean) = viewModelScope.launch {
+        settingsRepository.setAutoBlockThreats(enabled)
+    }
+
+    fun setEnableWeeklySummary(enabled: Boolean) = viewModelScope.launch {
+        settingsRepository.setWeeklySummary(enabled)
+    }
+
+    fun setDnsMode(mode: String) = viewModelScope.launch {
+        settingsRepository.setDefaultDns(mode)
+    }
+
+    fun setEnableSecureDns(enabled: Boolean) = viewModelScope.launch {
+        if (enabled) {
+            settingsRepository.setDefaultDns("Cloudflare")
+        } else {
+            settingsRepository.setDefaultDns("None")
+        }
+    }
+
+    fun setCustomDnsIp(primary: String, secondary: String) = viewModelScope.launch {
+        settingsRepository.setCustomDnsPrimary(primary)
+        settingsRepository.setCustomDnsSecondary(secondary)
     }
 
     // --- Advanced Operations ---

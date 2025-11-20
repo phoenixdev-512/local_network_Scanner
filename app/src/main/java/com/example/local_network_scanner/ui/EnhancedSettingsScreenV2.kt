@@ -178,11 +178,11 @@ fun EnhancedSettingsScreen(
                         
                         SettingsSelectionRow(
                             title = "DNS Provider",
-                            description = dnsSettings.dnsMode,
+                            description = dnsSettings.mode,
                             icon = Icons.Default.Dns,
                             onClick = {
                                 val modes = listOf("SYSTEM", "CLOUDFLARE", "GOOGLE", "CUSTOM")
-                                val currentIndex = modes.indexOf(dnsSettings.dnsMode)
+                                val currentIndex = modes.indexOf(dnsSettings.mode.uppercase())
                                 val nextMode = modes[(currentIndex + 1) % modes.size]
                                 settingsViewModel.setDnsMode(nextMode)
                             }
