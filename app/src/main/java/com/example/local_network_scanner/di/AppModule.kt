@@ -2,10 +2,14 @@ package com.example.local_network_scanner.di
 
 import android.content.Context
 import android.net.ConnectivityManager
+import android.net.wifi.WifiManager
 import androidx.room.Room
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.local_network_scanner.data.db.*
+import com.example.local_network_scanner.data.repository.AnalyticsRepository
+import com.example.local_network_scanner.data.repository.NetworkRepository
+import com.example.local_network_scanner.data.repository.PolicyRepository
 import com.example.local_network_scanner.data.repository.ProfileRepository
 import com.example.local_network_scanner.services.GitHubApiService
 import com.example.local_network_scanner.util.ImageStorageService
@@ -27,6 +31,14 @@ object AppModule {
     fun provideConnectivityManager(@ApplicationContext context: Context): ConnectivityManager {
         return context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     }
+    
+    @Provides
+    @Singleton
+    fun provideWifiManager(@ApplicationContext context: Context): WifiManager {
+        return context.getSystemService(Context.WIFI_SERVICE) as WifiManager
+    }
+
+    // DataUsageMonitor is automatically provided by @Singleton and @Inject constructor
 
     // Migration from version 5 to 6
     private val MIGRATION_5_6 = object : Migration(5, 6) {
@@ -104,6 +116,85 @@ object AppModule {
             database.execSQL("ALTER TABLE user_profiles ADD COLUMN blockedAppsJson TEXT NOT NULL DEFAULT '[]'")
         }
     }
+    
+    // Migration from version 7 to 8 - Update saved_networks, network_policies, add network_analytics
+    private val MIGRATION_7_8 = object : Migration(7, 8) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            // Update saved_networks table - recreate with new schema
+            database.execSQL("""
+                CREATE TABLE IF NOT EXISTS saved_networks_new (
+                    ssid TEXT PRIMARY KEY NOT NULL,
+                    bssid TEXT NOT NULL,
+                    securityType TEXT NOT NULL,
+                    isTrusted INTEGER NOT NULL DEFAULT 0,
+                    customDnsPrimary TEXT,
+                    customDnsSecondary TEXT,
+                    firewallPolicyId INTEGER,
+                    lastConnectedAt INTEGER,
+                    averageSignalStrength INTEGER NOT NULL DEFAULT 0,
+                    totalDataUsed INTEGER NOT NULL DEFAULT 0,
+                    connectionCount INTEGER NOT NULL DEFAULT 0,
+                    createdAt INTEGER NOT NULL
+                )
+            """.trimIndent())
+            
+            // Copy existing data
+            database.execSQL("""
+                INSERT INTO saved_networks_new (ssid, bssid, securityType, isTrusted, customDnsPrimary, firewallPolicyId, lastConnectedAt, averageSignalStrength, createdAt)
+                SELECT ssid, bssid, securityType, isTrusted, customDns, firewallPolicyId, lastConnected, signalStrength, ${System.currentTimeMillis()}
+                FROM saved_networks
+            """.trimIndent())
+            
+            database.execSQL("DROP TABLE saved_networks")
+            database.execSQL("ALTER TABLE saved_networks_new RENAME TO saved_networks")
+            
+            // Update network_policies table - recreate with new schema
+            database.execSQL("""
+                CREATE TABLE IF NOT EXISTS network_policies_new (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    name TEXT NOT NULL,
+                    description TEXT NOT NULL,
+                    allowedAppsJson TEXT NOT NULL DEFAULT '[]',
+                    blockedDomainsJson TEXT NOT NULL DEFAULT '[]',
+                    dnsProvider TEXT NOT NULL,
+                    customDnsPrimary TEXT,
+                    customDnsSecondary TEXT,
+                    enableAdBlocking INTEGER NOT NULL DEFAULT 0,
+                    enableMalwareProtection INTEGER NOT NULL DEFAULT 1,
+                    enableTrackerBlocking INTEGER NOT NULL DEFAULT 0,
+                    blockedPortsJson TEXT NOT NULL DEFAULT '[]',
+                    isDefault INTEGER NOT NULL DEFAULT 0,
+                    isActive INTEGER NOT NULL DEFAULT 0,
+                    createdAt INTEGER NOT NULL
+                )
+            """.trimIndent())
+            
+            // Copy existing data
+            database.execSQL("""
+                INSERT INTO network_policies_new (id, name, description, allowedAppsJson, blockedDomainsJson, dnsProvider, enableAdBlocking, enableMalwareProtection, createdAt)
+                SELECT id, name, description, allowedAppsJson, blockedDomainsJson, dnsProvider, enableAdBlocking, enableMalwareProtection, createdAt
+                FROM network_policies
+            """.trimIndent())
+            
+            database.execSQL("DROP TABLE network_policies")
+            database.execSQL("ALTER TABLE network_policies_new RENAME TO network_policies")
+            
+            // Create network_analytics table
+            database.execSQL("""
+                CREATE TABLE IF NOT EXISTS network_analytics (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    ssid TEXT NOT NULL,
+                    timestamp INTEGER NOT NULL,
+                    downloadSpeed REAL NOT NULL,
+                    uploadSpeed REAL NOT NULL,
+                    signalStrength INTEGER NOT NULL,
+                    dataUsed INTEGER NOT NULL,
+                    connectionDuration INTEGER NOT NULL,
+                    threatsBlocked INTEGER NOT NULL
+                )
+            """.trimIndent())
+        }
+    }
 
     @Provides
     @Singleton
@@ -113,7 +204,7 @@ object AppModule {
             AppDatabase::class.java,
             "netsentry_db"
         )
-        .addMigrations(MIGRATION_5_6, MIGRATION_6_7)
+        .addMigrations(MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8)
         .fallbackToDestructiveMigration()
         .build()
     }
@@ -174,8 +265,36 @@ object AppModule {
     
     @Provides
     @Singleton
+    fun provideNetworkAnalyticsDao(appDatabase: AppDatabase): NetworkAnalyticsDao {
+        return appDatabase.networkAnalyticsDao()
+    }
+    
+    @Provides
+    @Singleton
     fun provideProfileRepository(userProfileDao: UserProfileDao): ProfileRepository {
         return ProfileRepository(userProfileDao)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideNetworkRepository(
+        savedNetworkDao: SavedNetworkDao,
+        wifiManager: WifiManager,
+        @ApplicationContext context: Context
+    ): NetworkRepository {
+        return NetworkRepository(savedNetworkDao, wifiManager, context)
+    }
+    
+    @Provides
+    @Singleton
+    fun providePolicyRepository(networkPolicyDao: NetworkPolicyDao): PolicyRepository {
+        return PolicyRepository(networkPolicyDao)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideAnalyticsRepository(networkAnalyticsDao: NetworkAnalyticsDao): AnalyticsRepository {
+        return AnalyticsRepository(networkAnalyticsDao)
     }
     
     @Provides

@@ -3,7 +3,9 @@ package com.example.local_network_scanner.ui.theme
 import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Shapes
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
@@ -13,9 +15,58 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 
-// Speedtest-inspired Dark Color Scheme
+// SENET Dark Theme Colors
+private val DarkColorScheme = darkColorScheme(
+    primary = SenetColors.NavyLight,           // Primary action buttons, FABs
+    onPrimary = SenetColors.WhitePure,
+    primaryContainer = SenetColors.NavyBase,
+    onPrimaryContainer = SenetColors.NavyLight,
+    
+    secondary = SenetColors.NavyBase,
+    onSecondary = SenetColors.WhitePure,
+    
+    surface = SenetColors.DarkGray,
+    onSurface = SenetColors.WhitePure,
+    surfaceVariant = androidx.compose.ui.graphics.Color(0xFF2A2A2A),
+    onSurfaceVariant = SenetColors.MediumGray,
+    
+    background = SenetColors.NavyDark,
+    onBackground = SenetColors.WhitePure,
+    
+    error = SenetColors.Error,
+    onError = SenetColors.WhitePure,
+    
+    outline = SenetColors.NavyLight
+)
+
+// SENET Light Theme Colors
+private val LightColorScheme = lightColorScheme(
+    primary = SenetColors.NavyBase,            // Primary action buttons, FABs
+    onPrimary = SenetColors.WhitePure,
+    primaryContainer = androidx.compose.ui.graphics.Color(0xFFEBF2FF),
+    onPrimaryContainer = SenetColors.NavyDark,
+    
+    secondary = SenetColors.NavyLight,
+    onSecondary = SenetColors.WhitePure,
+    
+    surface = SenetColors.WhitePure,
+    onSurface = SenetColors.Black,
+    surfaceVariant = SenetColors.LightGray,
+    onSurfaceVariant = SenetColors.MediumGray,
+    
+    background = SenetColors.WhitePure,
+    onBackground = SenetColors.Black,
+    
+    error = SenetColors.Error,
+    onError = SenetColors.WhitePure,
+    
+    outline = SenetColors.NavyBase
+)
+
+// Legacy color scheme for backward compatibility
 private val SpeedtestDarkColorScheme = darkColorScheme(
     primary = ElectricBlue,
     onPrimary = TextPrimary,
@@ -53,7 +104,6 @@ private val SpeedtestDarkColorScheme = darkColorScheme(
     inversePrimary = DeepNavy,
 )
 
-// Light Color Scheme (for future use)
 private val SpeedtestLightColorScheme = lightColorScheme(
     primary = ElectricBlue,
     onPrimary = TextPrimary,
@@ -87,9 +137,37 @@ private val SpeedtestLightColorScheme = lightColorScheme(
 )
 
 @Composable
+fun SenetTheme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    content: @Composable () -> Unit
+) {
+    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
+    
+    val view = LocalView.current
+    if (!view.isInEditMode) {
+        SideEffect {
+            val window = (view.context as Activity).window
+            window.statusBarColor = SenetColors.NavyDark.toArgb()
+            window.navigationBarColor = SenetColors.DarkGray.toArgb()
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
+        }
+    }
+    
+    MaterialTheme(
+        colorScheme = colorScheme,
+        typography = SenetTypography,
+        shapes = Shapes(
+            small = RoundedCornerShape(8.dp),
+            medium = RoundedCornerShape(12.dp),
+            large = RoundedCornerShape(16.dp)
+        ),
+        content = content
+    )
+}
+
+@Composable
 fun NetSentryTheme(
-    darkTheme: Boolean = true, // Always use dark theme for Speedtest-inspired design
-    // Dynamic color disabled to use custom Speedtest palette
+    darkTheme: Boolean = true,
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {

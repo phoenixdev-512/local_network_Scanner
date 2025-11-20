@@ -25,6 +25,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.local_network_scanner.R
+import com.example.local_network_scanner.ui.components.SenetLogo
 import com.example.local_network_scanner.ui.theme.*
 import com.example.local_network_scanner.ui.viewmodel.AboutViewModel
 
@@ -69,11 +70,7 @@ fun AboutScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Image(
-                        painter = painterResource(R.mipmap.ic_launcher),
-                        contentDescription = "SENET Logo",
-                        modifier = Modifier.size(120.dp)
-                    )
+                    SenetLogo(size = 200.dp)
                     
                     Spacer(modifier = Modifier.height(8.dp))
                     

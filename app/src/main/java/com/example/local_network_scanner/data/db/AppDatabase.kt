@@ -2,6 +2,7 @@ package com.example.local_network_scanner.data.db
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 
 @Database(
     entities = [
@@ -14,11 +15,13 @@ import androidx.room.RoomDatabase
         UserProfile::class,
         SavedNetwork::class,
         NetworkPolicy::class,
-        SpeedTestResult::class
+        SpeedTestResult::class,
+        NetworkAnalytics::class
     ],
-    version = 7,
+    version = 8,
     exportSchema = false
 )
+@TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun logDao(): LogDao
     abstract fun profileDao(): ProfileDao
@@ -29,4 +32,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun savedNetworkDao(): SavedNetworkDao
     abstract fun networkPolicyDao(): NetworkPolicyDao
     abstract fun speedTestResultDao(): SpeedTestResultDao
+    abstract fun networkAnalyticsDao(): NetworkAnalyticsDao
 }
