@@ -18,52 +18,52 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 
-// SENET Dark Theme Colors
+// SENET Neo-Glassmorphism Dark Theme Colors
 private val DarkColorScheme = darkColorScheme(
-    primary = SenetColors.NavyLight,           // Primary action buttons, FABs
+    primary = SenetColors.NeonBlue,           // Primary action buttons, FABs - Neon Blue
     onPrimary = SenetColors.WhitePure,
     primaryContainer = SenetColors.NavyBase,
-    onPrimaryContainer = SenetColors.NavyLight,
+    onPrimaryContainer = SenetColors.NeonBlue,
     
-    secondary = SenetColors.NavyBase,
+    secondary = SenetColors.ElectricBlue,
     onSecondary = SenetColors.WhitePure,
     
-    surface = SenetColors.DarkGray,
-    onSurface = SenetColors.WhitePure,
-    surfaceVariant = androidx.compose.ui.graphics.Color(0xFF2A2A2A),
-    onSurfaceVariant = SenetColors.MediumGray,
+    surface = SenetColors.GlassSurface,
+    onSurface = SenetColors.TextPrimary,
+    surfaceVariant = SenetColors.GlassSurfaceLight,
+    onSurfaceVariant = SenetColors.TextSecondary,
     
     background = SenetColors.NavyDark,
-    onBackground = SenetColors.WhitePure,
+    onBackground = SenetColors.TextPrimary,
     
     error = SenetColors.Error,
     onError = SenetColors.WhitePure,
     
-    outline = SenetColors.NavyLight
+    outline = SenetColors.NeonBlue.copy(alpha = 0.5f)
 )
 
-// SENET Light Theme Colors
+// SENET Neo-Glassmorphism Light Theme Colors
 private val LightColorScheme = lightColorScheme(
-    primary = SenetColors.NavyBase,            // Primary action buttons, FABs
+    primary = SenetColors.NeonBlue,            // Primary action buttons, FABs - Neon Blue
     onPrimary = SenetColors.WhitePure,
-    primaryContainer = androidx.compose.ui.graphics.Color(0xFFEBF2FF),
+    primaryContainer = androidx.compose.ui.graphics.Color(0xFFE3F2FD),
     onPrimaryContainer = SenetColors.NavyDark,
     
-    secondary = SenetColors.NavyLight,
+    secondary = SenetColors.ElectricBlue,
     onSecondary = SenetColors.WhitePure,
     
-    surface = SenetColors.WhitePure,
-    onSurface = SenetColors.Black,
-    surfaceVariant = SenetColors.LightGray,
-    onSurfaceVariant = SenetColors.MediumGray,
+    surface = SenetColors.WhitePure.copy(alpha = 0.95f),
+    onSurface = SenetColors.NavyDark,
+    surfaceVariant = SenetColors.LightGray.copy(alpha = 0.8f),
+    onSurfaceVariant = SenetColors.TextTertiary,
     
-    background = SenetColors.WhitePure,
-    onBackground = SenetColors.Black,
+    background = androidx.compose.ui.graphics.Color(0xFFF8FAFB),
+    onBackground = SenetColors.NavyDark,
     
     error = SenetColors.Error,
     onError = SenetColors.WhitePure,
     
-    outline = SenetColors.NavyBase
+    outline = SenetColors.NeonBlue.copy(alpha = 0.4f)
 )
 
 // Legacy color scheme for backward compatibility
@@ -147,8 +147,9 @@ fun SenetTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
+            // Use deep navy gradient background for status bar
             window.statusBarColor = SenetColors.NavyDark.toArgb()
-            window.navigationBarColor = SenetColors.DarkGray.toArgb()
+            window.navigationBarColor = SenetColors.Black.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
         }
     }
@@ -157,9 +158,9 @@ fun SenetTheme(
         colorScheme = colorScheme,
         typography = SenetTypography,
         shapes = Shapes(
-            small = RoundedCornerShape(8.dp),
-            medium = RoundedCornerShape(12.dp),
-            large = RoundedCornerShape(16.dp)
+            small = RoundedCornerShape(12.dp),
+            medium = RoundedCornerShape(18.dp),
+            large = RoundedCornerShape(22.dp)
         ),
         content = content
     )
