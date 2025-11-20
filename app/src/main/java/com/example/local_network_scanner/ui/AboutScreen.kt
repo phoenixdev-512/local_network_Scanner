@@ -14,6 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -21,16 +22,18 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.local_network_scanner.R
-import com.example.local_network_scanner.ui.components.SenetLogo
+import com.example.local_network_scanner.ui.components.*
 import com.example.local_network_scanner.ui.theme.*
 import com.example.local_network_scanner.ui.viewmodel.AboutViewModel
 
 /**
- * About Screen - Displays app information, developer details, and links
+ * Neo-Glassmorphism About Screen
+ * Displays SENET branding, app information, and developer details
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,63 +44,91 @@ fun AboutScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("About", color = TextPrimary) },
+                title = { 
+                    Text(
+                        "About", 
+                        color = SenetColors.TextPrimary,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
+                    ) 
+                },
                 navigationIcon = {
                     navController?.let {
                         IconButton(onClick = { navController.navigateUp() }) {
-                            Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = TextPrimary)
+                            Icon(
+                                Icons.Default.ArrowBack, 
+                                contentDescription = "Back", 
+                                tint = SenetColors.TextPrimary
+                            )
                         }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = SurfaceDarkGray
+                    containerColor = SenetColors.NavyDark
                 )
             )
         },
-        containerColor = DeepNavy
+        containerColor = SenetColors.Black
     ) { paddingValues ->
-        LazyColumn(
+        Box(
             modifier = Modifier
                 .padding(paddingValues)
-                .fillMaxSize(),
-            contentPadding = PaddingValues(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .fillMaxSize()
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            SenetColors.darkGradientStart,
+                            SenetColors.darkGradientMid,
+                            SenetColors.darkGradientEnd
+                        )
+                    )
+                )
         ) {
-            // App branding
-            item {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    SenetLogo(size = 200.dp)
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    Text(
-                        text = "SENET",
-                        style = MaterialTheme.typography.headlineLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = TextPrimary
-                    )
-                    
-                    Text(
-                        text = "Security Network Scanner",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = TextSecondary
-                    )
-                    
-                    Text(
-                        text = viewModel.getVersionInfo(),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = TextTertiary
-                    )
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // App branding with glassmorphic card
+                item {
+                    GlassCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        withBorder = true
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            SenetLogo(size = 200.dp)
+                            
+                            Text(
+                                text = "SENET",
+                                fontSize = 36.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = SenetColors.NeonBlue
+                            )
+                            
+                            Text(
+                                text = "Security Network Scanner",
+                                fontSize = 16.sp,
+                                color = SenetColors.TextSecondary,
+                                fontWeight = FontWeight.Medium
+                            )
+                            
+                            Text(
+                                text = viewModel.getVersionInfo(),
+                                fontSize = 14.sp,
+                                color = SenetColors.TextTertiary
+                            )
+                        }
+                    }
                 }
-            }
-            
-            // Developer card
-            item {
-                Card(
+                
+                // Developer card
+                item {
+                    Card(
                     modifier = Modifier.fillMaxWidth(),
                     onClick = { viewModel.openDeveloperProfile() },
                     colors = CardDefaults.cardColors(containerColor = SurfaceDarkGray),
