@@ -24,15 +24,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.local_network_scanner.services.RiskLevel
 import com.example.local_network_scanner.services.SuspiciousApp
 import com.example.local_network_scanner.ui.theme.*
+import com.example.local_network_scanner.ui.components.*
 import com.example.local_network_scanner.ui.viewmodel.SecurityViewModel
 
 /**
- * Security screen with comprehensive security scanning
- * Displays security metrics, suspicious apps, and allows security actions
+ * Neo-Glassmorphism Security Screen
+ * Premium security dashboard with glowing gauges and animated threat detection
  */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
@@ -49,23 +51,29 @@ fun SecurityScreen(
     val appsWithNetworkAccess by viewModel.appsWithNetworkAccess.collectAsState()
     val activeConnections by viewModel.activeConnections.collectAsState()
     
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .background(
                 brush = Brush.verticalGradient(
-                    colors = listOf(DeepNavy, GradientMiddle, TrueBlack)
+                    colors = listOf(
+                        SenetColors.darkGradientStart,
+                        SenetColors.darkGradientMid,
+                        SenetColors.darkGradientEnd
+                    )
                 )
             )
     ) {
-        // Header
-        SecurityHeader(securityScore)
-        
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            // Security Score Gauge
+            item {
+                SecurityScoreGauge(securityScore)
+            }
+            
             // Security metrics card
             item {
                 SecurityMetricsCard(
@@ -95,8 +103,8 @@ fun SecurityScreen(
                 item {
                     Text(
                         text = "Suspicious Apps Detected (${suspiciousApps.size})",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = ThreatRed,
+                        fontSize = 18.sp,
+                        color = SenetColors.ErrorGlow,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(vertical = 8.dp)
                     )
@@ -124,6 +132,49 @@ fun SecurityScreen(
                     NoThreatsCard()
                 }
             }
+        }
+    }
+}
+
+/**
+ * Security Score Gauge - Large glowing security score display
+ */
+@Composable
+private fun SecurityScoreGauge(securityScore: Int) {
+    val scoreColor = when {
+        securityScore >= 80 -> SenetColors.SuccessGlow
+        securityScore >= 60 -> SenetColors.WarningGlow
+        else -> SenetColors.ErrorGlow
+    }
+    
+    val scoreStatus = when {
+        securityScore >= 80 -> "Secure"
+        securityScore >= 60 -> "Moderate"
+        else -> "At Risk"
+    }
+    
+    GlassCard(
+        modifier = Modifier.fillMaxWidth(),
+        withBorder = true
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text(
+                text = "Security Status",
+                fontSize = 22.sp,
+                color = SenetColors.TextPrimary,
+                fontWeight = FontWeight.Bold
+            )
+            
+            GlowingGauge(
+                value = securityScore.toFloat(),
+                maxValue = 100f,
+                label = scoreStatus,
+                unit = "/100",
+                size = 220.dp
+            )
         }
     }
 }
@@ -211,25 +262,19 @@ private fun SecurityMetricsCard(
     activeConnections: Int,
     threatsDetected: Int
 ) {
-    Card(
+    GlassCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceDarkGray),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        withBorder = true
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(24.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
                 text = "Real-Time Device Status",
-                style = MaterialTheme.typography.titleLarge,
-                color = TextPrimary,
-                fontWeight = FontWeight.SemiBold
+                fontSize = 20.sp,
+                color = SenetColors.TextPrimary,
+                fontWeight = FontWeight.Bold
             )
-            
-            Spacer(modifier = Modifier.height(20.dp))
             
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -239,21 +284,21 @@ private fun SecurityMetricsCard(
                     value = appsWithNetworkAccess.toString(),
                     label = "Apps with\nNetwork Access",
                     icon = Icons.Default.Apps,
-                    color = InfoCyan
+                    color = SenetColors.ElectricBlue
                 )
                 
                 SecurityMetricItem(
                     value = activeConnections.toString(),
                     label = "Active\nConnections",
                     icon = Icons.Default.Cloud,
-                    color = ElectricBlue
+                    color = SenetColors.NeonBlue
                 )
                 
                 SecurityMetricItem(
                     value = threatsDetected.toString(),
                     label = "Detected\nThreats",
                     icon = Icons.Default.Warning,
-                    color = if (threatsDetected > 0) ThreatRed else VibrантGreen
+                    color = if (threatsDetected > 0) SenetColors.ErrorGlow else SenetColors.SuccessGlow
                 )
             }
         }
@@ -302,119 +347,80 @@ private fun SecurityScanButton(
     onScanClick: () -> Unit,
     onResetClick: () -> Unit
 ) {
-    Card(
+    GlassCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isScanning) CardBackground else VibrантGreen.copy(alpha = 0.2f)
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        withBorder = true
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             if (isScanning) {
                 Text(
                     text = "Scanning Device...",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = TextPrimary,
-                    fontWeight = FontWeight.SemiBold
+                    fontSize = 20.sp,
+                    color = SenetColors.TextPrimary,
+                    fontWeight = FontWeight.Bold
                 )
                 
-                Spacer(modifier = Modifier.height(16.dp))
-                
-                LinearProgressIndicator(
-                    progress = { scanProgress },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(12.dp),
-                    color = ElectricBlue,
-                    trackColor = CardBackground,
+                AnimatedProgressBar(
+                    progress = scanProgress,
+                    height = 12.dp
                 )
-                
-                Spacer(modifier = Modifier.height(8.dp))
                 
                 Text(
                     text = "${(scanProgress * 100).toInt()}% Complete",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = TextSecondary
+                    fontSize = 14.sp,
+                    color = SenetColors.TextSecondary
                 )
             } else if (scanComplete) {
                 Icon(
                     Icons.Default.CheckCircle,
                     contentDescription = null,
-                    tint = VibrантGreen,
+                    tint = SenetColors.SuccessGlow,
                     modifier = Modifier.size(48.dp)
                 )
                 
-                Spacer(modifier = Modifier.height(16.dp))
-                
                 Text(
                     text = "Scan Complete!",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = VibrантGreen,
+                    fontSize = 20.sp,
+                    color = SenetColors.SuccessGlow,
                     fontWeight = FontWeight.Bold
                 )
                 
-                Spacer(modifier = Modifier.height(16.dp))
-                
-                Button(
+                NeoButton(
+                    text = "Scan Again",
                     onClick = onResetClick,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = ElectricBlue
-                    )
-                ) {
-                    Text("Scan Again")
-                }
+                    modifier = Modifier.fillMaxWidth()
+                )
             } else {
                 Icon(
                     Icons.Default.Security,
                     contentDescription = null,
-                    tint = VibrантGreen,
+                    tint = SenetColors.SuccessGlow,
                     modifier = Modifier.size(48.dp)
                 )
                 
-                Spacer(modifier = Modifier.height(16.dp))
-                
                 Text(
                     text = "Full Security Scan",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = TextPrimary,
+                    fontSize = 20.sp,
+                    color = SenetColors.TextPrimary,
                     fontWeight = FontWeight.Bold
                 )
                 
-                Spacer(modifier = Modifier.height(8.dp))
-                
                 Text(
                     text = "Scan all installed apps for suspicious behavior",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = TextSecondary,
+                    fontSize = 14.sp,
+                    color = SenetColors.TextSecondary,
                     textAlign = androidx.compose.ui.text.style.TextAlign.Center
                 )
                 
-                Spacer(modifier = Modifier.height(20.dp))
-                
-                Button(
+                NeoButton(
+                    text = "START SECURITY SCAN",
                     onClick = onScanClick,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = VibrантGreen
-                    ),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Icon(Icons.Default.Search, contentDescription = null)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "START SECURITY SCAN",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         }
     }
