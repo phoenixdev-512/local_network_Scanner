@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
  */
 @Dao
 interface SavedNetworkDao {
-    @Query("SELECT * FROM saved_networks ORDER BY lastConnected DESC")
+    @Query("SELECT * FROM saved_networks ORDER BY lastConnectedAt DESC")
     fun getAllNetworks(): Flow<List<SavedNetwork>>
     
     @Query("SELECT * FROM saved_networks WHERE ssid = :ssid")
