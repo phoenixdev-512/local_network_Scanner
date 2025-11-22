@@ -82,7 +82,7 @@ fun DashboardScreen(
                     greeting = "Hello",
                     trailingContent = {
                         IconButton(onClick = { 
-                            Toast.makeText(context, "Settings", Toast.LENGTH_SHORT).show()
+                            navController?.navigate("settings")
                         }) {
                             Icon(
                                 Icons.Filled.Settings,
