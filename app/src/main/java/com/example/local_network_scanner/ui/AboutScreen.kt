@@ -346,6 +346,7 @@ fun AboutScreen(
             }
         }
     }
+    }
 }
 
 /**
