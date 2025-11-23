@@ -45,6 +45,7 @@ class NetSentryVpnService : VpnService() {
     @Inject lateinit var profileDao: ProfileDao
     @Inject lateinit var appUsageDao: AppUsageDao
     @Inject lateinit var vpnStateRepository: VpnStateRepository
+    @Inject lateinit var geoBlockRepository: com.example.local_network_scanner.data.repository.GeoBlockRepository
 
     private var vpnInterface: ParcelFileDescriptor? = null
     private val vpnJob = Job()
@@ -177,6 +178,16 @@ class NetSentryVpnService : VpnService() {
         val packageName = packageManager.getNameForUid(uid) ?: "Unknown"
         usageData[packageName] = (usageData[packageName] ?: 0) + packet.limit()
 
+        // 1. Check geo-blocking first (block at network level)
+        val destinationIp = ipHeader.destinationIp
+        val isGeoBlocked = geoBlockRepository.isIpBlocked(destinationIp)
+        if (isGeoBlocked) {
+            // Drop packet - destination country is blocked
+            android.util.Log.d(TAG, "Blocked packet to $destinationIp (geo-blocked country)")
+            return
+        }
+
+        // 2. Check app-based filtering
         val activeProfile = profileDao.getActiveProfileWithRules().first()
         val rules = activeProfile?.rules?.associate { it.packageName to it.isAllowed } ?: emptyMap()
 
