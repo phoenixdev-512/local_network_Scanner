@@ -567,13 +567,9 @@ private fun SuspiciousAppCard(
 
 @Composable
 private fun NoThreatsCard() {
-    Card(
+    GoogleCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = VibrантGreen.copy(alpha = 0.1f)
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
     ) {
         Column(
             modifier = Modifier
@@ -584,7 +580,7 @@ private fun NoThreatsCard() {
             Icon(
                 Icons.Default.CheckCircle,
                 contentDescription = null,
-                tint = VibrантGreen,
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(64.dp)
             )
             
@@ -593,7 +589,7 @@ private fun NoThreatsCard() {
             Text(
                 text = "No Threats Detected",
                 style = MaterialTheme.typography.headlineSmall,
-                color = VibrантGreen,
+                color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.Bold
             )
             
@@ -602,7 +598,7 @@ private fun NoThreatsCard() {
             Text(
                 text = "Your device is secure. All apps passed the security scan.",
                 style = MaterialTheme.typography.bodyLarge,
-                color = TextSecondary,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
             )
         }

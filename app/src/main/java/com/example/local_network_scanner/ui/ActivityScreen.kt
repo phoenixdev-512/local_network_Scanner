@@ -27,6 +27,7 @@ import com.example.local_network_scanner.ui.theme.AppSpacing
 import com.example.local_network_scanner.ui.viewmodel.ActivityViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun ActivityScreen(viewModel: ActivityViewModel = hiltViewModel()) {
     val recentActivity by viewModel.last5MinutesActivity.collectAsState()
@@ -58,18 +59,17 @@ fun ActivityScreen(viewModel: ActivityViewModel = hiltViewModel()) {
     
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Network Activity") },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                ),
+            GoogleTopAppBar(
+                title = "Network Activity",
                 actions = {
                     IconButton(onClick = { viewModel.refreshActivity() }) {
                         Icon(Icons.Default.Refresh, contentDescription = "Refresh")
                     }
-                }
+                },
+                scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
             )
-        }
+        },
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         AnimatedContent(
             targetState = isLoading,
@@ -84,7 +84,9 @@ fun ActivityScreen(viewModel: ActivityViewModel = hiltViewModel()) {
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator()
+                    CircularProgressIndicator(
+                        color = MaterialTheme.colorScheme.primary
+                    )
                 }
             } else {
                 Column(modifier = Modifier.fillMaxSize()) {
@@ -130,13 +132,11 @@ fun ActivityScreen(viewModel: ActivityViewModel = hiltViewModel()) {
 
 @Composable
 fun TimeRangeHeader() {
-    Card(
+    GoogleCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(AppSpacing.medium),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
-        )
+        containerColor = MaterialTheme.colorScheme.primaryContainer
     ) {
         Row(
             modifier = Modifier
@@ -149,13 +149,14 @@ fun TimeRangeHeader() {
                 Icon(
                     Icons.Default.AccessTime,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer
                 )
                 Spacer(modifier = Modifier.width(AppSpacing.small))
                 Text(
                     "Last 5 Minutes",
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             }
             
@@ -179,18 +180,17 @@ fun DataUsageSummaryCard(
     totalDownload: Long,
     activeAppsCount: Int
 ) {
-    Card(
+    GoogleCard(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = AppSpacing.medium),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        shape = RoundedCornerShape(16.dp)
+            .padding(horizontal = AppSpacing.medium)
     ) {
         Column(modifier = Modifier.padding(AppSpacing.medium)) {
             Text(
                 "Data Usage Summary",
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface
             )
             
             Spacer(modifier = Modifier.height(AppSpacing.medium))
@@ -203,21 +203,21 @@ fun DataUsageSummaryCard(
                     value = formatBytes(totalDownload),
                     label = "Downloaded",
                     icon = Icons.Default.ArrowDownward,
-                    color = Color(0xFF1E88E5)
+                    color = MaterialTheme.colorScheme.secondary
                 )
                 
                 DataUsageMetric(
                     value = formatBytes(totalUpload),
                     label = "Uploaded",
                     icon = Icons.Default.ArrowUpward,
-                    color = Color(0xFF00C853)
+                    color = MaterialTheme.colorScheme.primary
                 )
                 
                 DataUsageMetric(
                     value = activeAppsCount.toString(),
                     label = "Active Apps",
                     icon = Icons.Default.Apps,
-                    color = Color(0xFFFFA726)
+                    color = MaterialTheme.colorScheme.tertiary
                 )
             }
         }
@@ -251,17 +251,15 @@ fun DataUsageMetric(
         Text(
             text = label,
             style = MaterialTheme.typography.bodySmall,
-            color = Color.Gray
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
 
 @Composable
 fun AppActivityCard(activity: AppNetworkActivity) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        shape = RoundedCornerShape(12.dp)
+    GoogleCard(
+        modifier = Modifier.fillMaxWidth()
     ) {
         Row(
             modifier = Modifier
@@ -296,12 +294,13 @@ fun AppActivityCard(activity: AppNetworkActivity) {
                     Text(
                         text = activity.appName,
                         style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
                         text = "${activity.connectionCount} connections",
                         style = MaterialTheme.typography.bodySmall,
-                        color = Color.Gray
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
@@ -311,14 +310,15 @@ fun AppActivityCard(activity: AppNetworkActivity) {
                     Icon(
                         imageVector = Icons.Default.ArrowUpward,
                         contentDescription = "Upload",
-                        tint = Color(0xFF00C853),
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = formatBytes(activity.uploadBytes),
                         style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Medium
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
                 Spacer(modifier = Modifier.height(4.dp))
@@ -326,14 +326,15 @@ fun AppActivityCard(activity: AppNetworkActivity) {
                     Icon(
                         imageVector = Icons.Default.ArrowDownward,
                         contentDescription = "Download",
-                        tint = Color(0xFF1E88E5),
+                        tint = MaterialTheme.colorScheme.secondary,
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = formatBytes(activity.downloadBytes),
                         style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Medium
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
@@ -405,11 +406,10 @@ private fun SearchAndFilterSection(
 
 @Composable
 private fun EmptyActivityCard() {
-    Card(
+    GoogleCard(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(AppSpacing.medium),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            .padding(AppSpacing.medium)
     ) {
         Column(
             modifier = Modifier
@@ -421,19 +421,20 @@ private fun EmptyActivityCard() {
                 Icons.Default.SignalCellularOff,
                 contentDescription = null,
                 modifier = Modifier.size(64.dp),
-                tint = Color.Gray
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = "No Activity Found",
                 style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = "No apps match your search",
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color.Gray,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
             )
         }
