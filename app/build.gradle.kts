@@ -35,7 +35,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            // Use default debug signing for now - replace with your keystore for production
+            //Use default debug signing for now - replace with your keystore for production
             signingConfig = signingConfigs.getByName("debug")
         }
         debug {
@@ -118,6 +118,10 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    
+    // MaxMind GeoIP2 for geo-blocking
+    implementation("com.maxmind.geoip2:geoip2:4.2.0")
+    implementation("com.maxmind.db:maxmind-db:3.1.0")
 
 
     testImplementation("junit:junit:4.13.2")

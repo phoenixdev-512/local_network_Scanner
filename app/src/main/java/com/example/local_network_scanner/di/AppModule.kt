@@ -195,6 +195,21 @@ object AppModule {
             """.trimIndent())
         }
     }
+    
+    // Migration from version 8 to 9 - Add blocked_countries table for geo-blocking
+    private val MIGRATION_8_9 = object : Migration(8, 9) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            // Create blocked_countries table
+            database.execSQL("""
+                CREATE TABLE IF NOT EXISTS blocked_countries (
+                    countryCode TEXT PRIMARY KEY NOT NULL,
+                    countryName TEXT NOT NULL,
+                    isBlocked INTEGER NOT NULL DEFAULT 1,
+                    addedDate INTEGER NOT NULL
+                )
+            """.trimIndent())
+        }
+    }
 
     @Provides
     @Singleton
@@ -204,7 +219,7 @@ object AppModule {
             AppDatabase::class.java,
             "netsentry_db"
         )
-        .addMigrations(MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8)
+        .addMigrations(MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9)
         .fallbackToDestructiveMigration()
         .build()
     }
@@ -267,6 +282,12 @@ object AppModule {
     @Singleton
     fun provideNetworkAnalyticsDao(appDatabase: AppDatabase): NetworkAnalyticsDao {
         return appDatabase.networkAnalyticsDao()
+    }
+    
+    @Provides
+    @Singleton
+    fun provideBlockedCountryDao(appDatabase: AppDatabase): BlockedCountryDao {
+        return appDatabase.blockedCountryDao()
     }
     
     @Provides

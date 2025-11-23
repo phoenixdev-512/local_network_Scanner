@@ -16,9 +16,10 @@ import androidx.room.TypeConverters
         SavedNetwork::class,
         NetworkPolicy::class,
         SpeedTestResult::class,
-        NetworkAnalytics::class
+        NetworkAnalytics::class,
+        BlockedCountry::class
     ],
-    version = 8,
+    version = 9,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -33,4 +34,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun networkPolicyDao(): NetworkPolicyDao
     abstract fun speedTestResultDao(): SpeedTestResultDao
     abstract fun networkAnalyticsDao(): NetworkAnalyticsDao
+    abstract fun blockedCountryDao(): BlockedCountryDao
 }
