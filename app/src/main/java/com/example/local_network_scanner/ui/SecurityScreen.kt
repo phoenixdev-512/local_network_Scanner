@@ -51,21 +51,19 @@ fun SecurityScreen(
     val appsWithNetworkAccess by viewModel.appsWithNetworkAccess.collectAsState()
     val activeConnections by viewModel.activeConnections.collectAsState()
     
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        SenetColors.darkGradientStart,
-                        SenetColors.darkGradientMid,
-                        SenetColors.darkGradientEnd
-                    )
-                )
+    Scaffold(
+        topBar = {
+            GoogleTopAppBar(
+                title = "Security Scan",
+                scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
             )
-    ) {
+        },
+        containerColor = MaterialTheme.colorScheme.background
+    ) { paddingValues ->
         LazyColumn(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -103,8 +101,8 @@ fun SecurityScreen(
                 item {
                     Text(
                         text = "Suspicious Apps Detected (${suspiciousApps.size})",
-                        fontSize = 18.sp,
-                        color = SenetColors.ErrorGlow,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.error,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(vertical = 8.dp)
                     )
@@ -141,21 +139,14 @@ fun SecurityScreen(
  */
 @Composable
 private fun SecurityScoreGauge(securityScore: Int) {
-    val scoreColor = when {
-        securityScore >= 80 -> SenetColors.SuccessGlow
-        securityScore >= 60 -> SenetColors.WarningGlow
-        else -> SenetColors.ErrorGlow
-    }
-    
     val scoreStatus = when {
         securityScore >= 80 -> "Secure"
         securityScore >= 60 -> "Moderate"
         else -> "At Risk"
     }
     
-    GlassCard(
-        modifier = Modifier.fillMaxWidth(),
-        withBorder = true
+    GoogleCard(
+        modifier = Modifier.fillMaxWidth()
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -163,18 +154,54 @@ private fun SecurityScoreGauge(securityScore: Int) {
         ) {
             Text(
                 text = "Security Status",
-                fontSize = 22.sp,
-                color = SenetColors.TextPrimary,
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold
             )
             
-            GlowingGauge(
-                value = securityScore.toFloat(),
-                maxValue = 100f,
-                label = scoreStatus,
-                unit = "/100",
-                size = 220.dp
-            )
+            // Reusing GlowingGauge but might need to check if it needs updates or if we should replace it with a standard progress indicator
+            // For now, let's assume GlowingGauge is compatible or we can replace it with a CircularProgressIndicator
+            
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.size(200.dp)
+            ) {
+                CircularProgressIndicator(
+                    progress = { securityScore / 100f },
+                    modifier = Modifier.fillMaxSize(),
+                    color = when {
+                        securityScore >= 80 -> MaterialTheme.colorScheme.primary
+                        securityScore >= 60 -> MaterialTheme.colorScheme.tertiary
+                        else -> MaterialTheme.colorScheme.error
+                    },
+                    strokeWidth = 12.dp,
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                )
+                
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = "$securityScore",
+                        style = MaterialTheme.typography.displayLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "/100",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = scoreStatus,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = when {
+                            securityScore >= 80 -> MaterialTheme.colorScheme.primary
+                            securityScore >= 60 -> MaterialTheme.colorScheme.tertiary
+                            else -> MaterialTheme.colorScheme.error
+                        },
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            }
         }
     }
 }
@@ -262,17 +289,16 @@ private fun SecurityMetricsCard(
     activeConnections: Int,
     threatsDetected: Int
 ) {
-    GlassCard(
-        modifier = Modifier.fillMaxWidth(),
-        withBorder = true
+    GoogleCard(
+        modifier = Modifier.fillMaxWidth()
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
                 text = "Real-Time Device Status",
-                fontSize = 20.sp,
-                color = SenetColors.TextPrimary,
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold
             )
             
@@ -284,21 +310,21 @@ private fun SecurityMetricsCard(
                     value = appsWithNetworkAccess.toString(),
                     label = "Apps with\nNetwork Access",
                     icon = Icons.Default.Apps,
-                    color = SenetColors.ElectricBlue
+                    color = MaterialTheme.colorScheme.primary
                 )
                 
                 SecurityMetricItem(
                     value = activeConnections.toString(),
                     label = "Active\nConnections",
                     icon = Icons.Default.Cloud,
-                    color = SenetColors.NeonBlue
+                    color = MaterialTheme.colorScheme.secondary
                 )
                 
                 SecurityMetricItem(
                     value = threatsDetected.toString(),
                     label = "Detected\nThreats",
                     icon = Icons.Default.Warning,
-                    color = if (threatsDetected > 0) SenetColors.ErrorGlow else SenetColors.SuccessGlow
+                    color = if (threatsDetected > 0) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
                 )
             }
         }
@@ -333,7 +359,7 @@ private fun SecurityMetricItem(
         Text(
             text = label,
             style = MaterialTheme.typography.bodySmall,
-            color = TextSecondary,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = androidx.compose.ui.text.style.TextAlign.Center
         )
     }
@@ -347,9 +373,8 @@ private fun SecurityScanButton(
     onScanClick: () -> Unit,
     onResetClick: () -> Unit
 ) {
-    GlassCard(
-        modifier = Modifier.fillMaxWidth(),
-        withBorder = true
+    GoogleCard(
+        modifier = Modifier.fillMaxWidth()
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
@@ -359,37 +384,39 @@ private fun SecurityScanButton(
             if (isScanning) {
                 Text(
                     text = "Scanning Device...",
-                    fontSize = 20.sp,
-                    color = SenetColors.TextPrimary,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Bold
                 )
                 
-                AnimatedProgressBar(
-                    progress = scanProgress,
-                    height = 12.dp
+                LinearProgressIndicator(
+                    progress = { scanProgress },
+                    modifier = Modifier.fillMaxWidth().height(8.dp),
+                    color = MaterialTheme.colorScheme.primary,
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
                 )
                 
                 Text(
                     text = "${(scanProgress * 100).toInt()}% Complete",
-                    fontSize = 14.sp,
-                    color = SenetColors.TextSecondary
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             } else if (scanComplete) {
                 Icon(
                     Icons.Default.CheckCircle,
                     contentDescription = null,
-                    tint = SenetColors.SuccessGlow,
+                    tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(48.dp)
                 )
                 
                 Text(
                     text = "Scan Complete!",
-                    fontSize = 20.sp,
-                    color = SenetColors.SuccessGlow,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold
                 )
                 
-                NeoButton(
+                GoogleStyleButton(
                     text = "Scan Again",
                     onClick = onResetClick,
                     modifier = Modifier.fillMaxWidth()
@@ -398,25 +425,25 @@ private fun SecurityScanButton(
                 Icon(
                     Icons.Default.Security,
                     contentDescription = null,
-                    tint = SenetColors.SuccessGlow,
+                    tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(48.dp)
                 )
                 
                 Text(
                     text = "Full Security Scan",
-                    fontSize = 20.sp,
-                    color = SenetColors.TextPrimary,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Bold
                 )
                 
                 Text(
                     text = "Scan all installed apps for suspicious behavior",
-                    fontSize = 14.sp,
-                    color = SenetColors.TextSecondary,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = androidx.compose.ui.text.style.TextAlign.Center
                 )
                 
-                NeoButton(
+                GoogleStyleButton(
                     text = "START SECURITY SCAN",
                     onClick = onScanClick,
                     modifier = Modifier.fillMaxWidth()
@@ -433,16 +460,13 @@ private fun SuspiciousAppCard(
     onViewDetails: () -> Unit
 ) {
     val riskColor = when (app.riskLevel) {
-        RiskLevel.HIGH -> ThreatRed
-        RiskLevel.MEDIUM -> WarningOrange
-        RiskLevel.LOW -> InfoCyan
+        RiskLevel.HIGH -> MaterialTheme.colorScheme.error
+        RiskLevel.MEDIUM -> MaterialTheme.colorScheme.errorContainer
+        RiskLevel.LOW -> MaterialTheme.colorScheme.tertiary
     }
     
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceDarkGray),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    GoogleCard(
+        modifier = Modifier.fillMaxWidth()
     ) {
         Column(
             modifier = Modifier
@@ -458,13 +482,13 @@ private fun SuspiciousAppCard(
                     Text(
                         text = app.appName,
                         style = MaterialTheme.typography.titleMedium,
-                        color = TextPrimary,
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
                         text = app.packageName,
                         style = MaterialTheme.typography.bodySmall,
-                        color = TextTertiary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
                 
@@ -501,7 +525,7 @@ private fun SuspiciousAppCard(
                     Text(
                         text = reason,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = TextSecondary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
@@ -517,7 +541,7 @@ private fun SuspiciousAppCard(
                     onClick = onViewDetails,
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = ElectricBlue
+                        contentColor = MaterialTheme.colorScheme.primary
                     )
                 ) {
                     Icon(Icons.Default.Info, contentDescription = null, modifier = Modifier.size(18.dp))
@@ -529,7 +553,7 @@ private fun SuspiciousAppCard(
                     onClick = onUninstall,
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = ThreatRed
+                        containerColor = MaterialTheme.colorScheme.error
                     )
                 ) {
                     Icon(Icons.Default.Delete, contentDescription = null, modifier = Modifier.size(18.dp))

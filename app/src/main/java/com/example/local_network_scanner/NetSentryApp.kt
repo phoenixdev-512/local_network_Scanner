@@ -85,7 +85,7 @@ fun NetSentryApp() {
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet(
-                drawerContainerColor = SurfaceDarkGray
+                drawerContainerColor = MaterialTheme.colorScheme.surface
             ) {
                 NavigationDrawerContent(
                     onNavigate = { route ->
@@ -105,7 +105,7 @@ fun NetSentryApp() {
         Scaffold(
             bottomBar = {
                 NavigationBar(
-                    containerColor = SurfaceDarkGray
+                    containerColor = MaterialTheme.colorScheme.surface
                 ) {
                     val navBackStackEntry by navController.currentBackStackEntryAsState()
                     val currentDestination = navBackStackEntry?.destination
@@ -124,11 +124,11 @@ fun NetSentryApp() {
                                 }
                             },
                             colors = NavigationBarItemDefaults.colors(
-                                selectedIconColor = ElectricBlue,
-                                selectedTextColor = ElectricBlue,
-                                unselectedIconColor = TextSecondary,
-                                unselectedTextColor = TextSecondary,
-                                indicatorColor = CardBackground
+                                selectedIconColor = MaterialTheme.colorScheme.primary,
+                                selectedTextColor = MaterialTheme.colorScheme.primary,
+                                unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                indicatorColor = MaterialTheme.colorScheme.secondaryContainer
                             )
                         )
                     }
@@ -140,22 +140,16 @@ fun NetSentryApp() {
                 startDestination = Screen.Dashboard.route,
                 Modifier.padding(innerPadding),
                 enterTransition = { 
-                    SenetMotionSpecs.sharedAxisTransitionX().targetContentEnter
+                    GoogleMotionSpecs.sharedAxisZForward().targetContentEnter
                 },
                 exitTransition = { 
-                    SenetMotionSpecs.sharedAxisTransitionX().initialContentExit
+                    GoogleMotionSpecs.sharedAxisZForward().initialContentExit
                 },
                 popEnterTransition = { 
-                    SenetMotionSpecs.sharedAxisTransitionX(
-                        initialOffsetX = { -it },
-                        targetOffsetX = { it }
-                    ).targetContentEnter
+                    GoogleMotionSpecs.sharedAxisZForward().targetContentEnter
                 },
                 popExitTransition = { 
-                    SenetMotionSpecs.sharedAxisTransitionX(
-                        initialOffsetX = { -it },
-                        targetOffsetX = { it }
-                    ).initialContentExit
+                    GoogleMotionSpecs.sharedAxisZForward().initialContentExit
                 }
             ) {
                 // Main navigation screens
@@ -187,50 +181,50 @@ fun NetSentryApp() {
                 composable(
                     route = Screen.Profile.route,
                     enterTransition = { 
-                        SenetMotionSpecs.containerTransform().targetContentEnter
+                        GoogleMotionSpecs.containerTransform().targetContentEnter
                     },
                     exitTransition = { 
-                        SenetMotionSpecs.containerTransform().initialContentExit
+                        GoogleMotionSpecs.containerTransform().initialContentExit
                     }
                 ) { ProfileScreen() }
                 
                 composable(
                     route = Screen.ProfileManagement.route,
                     enterTransition = { 
-                        SenetMotionSpecs.containerTransform().targetContentEnter
+                        GoogleMotionSpecs.containerTransform().targetContentEnter
                     },
                     exitTransition = { 
-                        SenetMotionSpecs.containerTransform().initialContentExit
+                        GoogleMotionSpecs.containerTransform().initialContentExit
                     }
                 ) { ProfileManagementScreen(navController = navController) }
                 
                 composable(
                     route = Screen.NetworkManager.route,
                     enterTransition = { 
-                        SenetMotionSpecs.containerTransform().targetContentEnter
+                        GoogleMotionSpecs.containerTransform().targetContentEnter
                     },
                     exitTransition = { 
-                        SenetMotionSpecs.containerTransform().initialContentExit
+                        GoogleMotionSpecs.containerTransform().initialContentExit
                     }
                 ) { NetworkManagerScreen() }
                 
                 composable(
                     route = Screen.HelpDocumentation.route,
                     enterTransition = { 
-                        SenetMotionSpecs.containerTransform().targetContentEnter
+                        GoogleMotionSpecs.containerTransform().targetContentEnter
                     },
                     exitTransition = { 
-                        SenetMotionSpecs.containerTransform().initialContentExit
+                        GoogleMotionSpecs.containerTransform().initialContentExit
                     }
                 ) { HelpDocumentationScreen(navController = navController) }
                 
                 composable(
                     route = Screen.About.route,
                     enterTransition = { 
-                        SenetMotionSpecs.containerTransform().targetContentEnter
+                        GoogleMotionSpecs.containerTransform().targetContentEnter
                     },
                     exitTransition = { 
-                        SenetMotionSpecs.containerTransform().initialContentExit
+                        GoogleMotionSpecs.containerTransform().initialContentExit
                     }
                 ) { AboutScreen(navController = navController) }
             }
@@ -254,11 +248,7 @@ private fun NavigationDrawerContent(onNavigate: (String) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(DeepNavy, SurfaceDarkGray)
-                )
-            )
+            .background(MaterialTheme.colorScheme.surface)
             .padding(vertical = 24.dp)
     ) {
         // Header with profile
@@ -266,7 +256,7 @@ private fun NavigationDrawerContent(onNavigate: (String) -> Unit) {
         
         Spacer(modifier = Modifier.height(24.dp))
         
-        HorizontalDivider(color = CardBackground)
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
         
         Spacer(modifier = Modifier.height(16.dp))
         
@@ -303,7 +293,7 @@ private fun NavigationDrawerContent(onNavigate: (String) -> Unit) {
         Text(
             text = "SENET v1.0",
             style = MaterialTheme.typography.bodySmall,
-            color = TextTertiary,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(horizontal = 28.dp)
         )
     }
@@ -322,11 +312,7 @@ private fun DrawerHeader() {
         modifier = Modifier
             .fillMaxWidth()
             .height(200.dp)
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = SenetColors.darkGradient
-                )
-            ),
+            .background(MaterialTheme.colorScheme.primaryContainer),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -340,14 +326,14 @@ private fun DrawerHeader() {
             Text(
                 text = "SENET",
                 style = MaterialTheme.typography.headlineMedium,
-                color = SenetColors.WhitePure,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
                 fontWeight = FontWeight.Bold
             )
             
             Text(
                 text = "Security Network Scanner",
                 style = MaterialTheme.typography.bodySmall,
-                color = SenetColors.WhitePure.copy(alpha = 0.7f)
+                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
             )
         }
     }
@@ -367,11 +353,11 @@ private fun DrawerNavigationItem(
         modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
         colors = NavigationDrawerItemDefaults.colors(
             unselectedContainerColor = androidx.compose.ui.graphics.Color.Transparent,
-            unselectedIconColor = TextSecondary,
-            unselectedTextColor = TextPrimary,
-            selectedContainerColor = CardBackground,
-            selectedIconColor = ElectricBlue,
-            selectedTextColor = ElectricBlue
+            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            selectedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+            selectedIconColor = MaterialTheme.colorScheme.onSecondaryContainer,
+            selectedTextColor = MaterialTheme.colorScheme.onSecondaryContainer
         )
     )
 }

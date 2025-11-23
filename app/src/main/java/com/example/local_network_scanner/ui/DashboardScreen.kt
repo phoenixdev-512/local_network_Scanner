@@ -5,7 +5,6 @@ import android.widget.Toast
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -32,10 +31,10 @@ import com.example.local_network_scanner.ui.viewmodel.DashboardViewModel
 import com.example.local_network_scanner.util.PermissionHelper
 
 /**
- * Neo-Glassmorphism Dashboard Screen
- * Premium smart dashboard with frosted glass cards, glowing gauges, and animated metrics
+ * Google Material Design 3 Dashboard Screen
+ * Premium smart dashboard with Material You dynamic colors and animations
  */
-@OptIn(ExperimentalAnimationApi::class)
+@OptIn(ExperimentalAnimationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
     navController: NavController? = null,
@@ -57,57 +56,58 @@ fun DashboardScreen(
         hasUsageStatsPermission.value = PermissionHelper.hasUsageStatsPermission(context)
     }
     
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        SenetColors.darkGradientStart,
-                        SenetColors.darkGradientMid,
-                        SenetColors.darkGradientEnd
-                    )
-                )
+    Scaffold(
+        topBar = {
+            GoogleTopAppBar(
+                title = "Network Dashboard",
+                actions = {
+                    IconButton(onClick = { 
+                        viewModel.soundManager.playTap()
+                        viewModel.hapticManager.lightTap()
+                        navController?.navigate("settings")
+                    }) {
+                        Icon(
+                            Icons.Filled.Settings,
+                            contentDescription = "Settings"
+                        )
+                    }
+                },
+                scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
             )
-    ) {
+        },
+        containerColor = MaterialTheme.colorScheme.background
+    ) { paddingValues ->
         LazyColumn(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Glassmorphic Header
-            item {
-                DashboardHeader(
-                    userName = "Network User",
-                    greeting = "Hello",
-                    trailingContent = {
-                        IconButton(onClick = { 
-                            navController?.navigate("settings")
-                        }) {
-                            Icon(
-                                Icons.Filled.Settings,
-                                contentDescription = "Settings",
-                                tint = SenetColors.TextPrimary
-                            )
-                        }
-                    }
-                )
-            }
             
             // Permission banner if not granted
             if (!hasUsageStatsPermission.value) {
                 item {
-                    PermissionBanner(
-                        onRequestPermission = {
+                    GoogleCard(
+                        onClick = {
                             if (context is Activity) {
                                 PermissionHelper.requestUsageStatsPermission(context)
                             }
-                        },
-                        onDismiss = {
-                            hasUsageStatsPermission.value = 
-                                PermissionHelper.hasUsageStatsPermission(context)
                         }
-                    )
+                    ) {
+                        Column {
+                            Text(
+                                text = "Permission Required",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = "Grant usage stats permission for accurate data monitoring.",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+                    }
                 }
             }
             
@@ -121,23 +121,23 @@ fun DashboardScreen(
                         label = "Download",
                         value = "${String.format("%.1f", networkSpeed.downloadMbps)} Mbps",
                         modifier = Modifier.weight(1f),
-                        valueColor = SenetColors.SuccessGlow
+                        valueColor = MaterialTheme.colorScheme.primary
                     )
                     StatCard(
                         label = "Upload",
                         value = "${String.format("%.1f", networkSpeed.uploadMbps)} Mbps",
                         modifier = Modifier.weight(1f),
-                        valueColor = SenetColors.ElectricBlue
+                        valueColor = MaterialTheme.colorScheme.secondary
                     )
                     StatCard(
                         label = "Ping",
                         value = if (ping >= 0) "$ping ms" else "--",
                         modifier = Modifier.weight(1f),
                         valueColor = when {
-                            ping < 0 -> SenetColors.MediumGray
-                            ping < 50 -> SenetColors.SuccessGlow
-                            ping < 100 -> SenetColors.WarningGlow
-                            else -> SenetColors.ErrorGlow
+                            ping < 0 -> MaterialTheme.colorScheme.onSurfaceVariant
+                            ping < 50 -> MaterialTheme.colorScheme.primary
+                            ping < 100 -> MaterialTheme.colorScheme.tertiary
+                            else -> MaterialTheme.colorScheme.error
                         }
                     )
                 }
@@ -156,7 +156,11 @@ fun DashboardScreen(
             item { 
                 SecurityGaugeWidget(
                     securityScore = networkStats.securityScore,
-                    onClick = { navController?.navigate("security") }
+                    onClick = { 
+                        viewModel.soundManager.playTap()
+                        viewModel.hapticManager.lightTap()
+                        navController?.navigate("security") 
+                    }
                 )
             }
             
@@ -181,9 +185,8 @@ private fun SpeedGaugeWidget(
     uploadSpeed: Double,
     isMonitoring: Boolean
 ) {
-    GlassCard(
-        modifier = Modifier.fillMaxWidth(),
-        withBorder = true
+    GoogleCard(
+        modifier = Modifier.fillMaxWidth()
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -197,9 +200,8 @@ private fun SpeedGaugeWidget(
             ) {
                 Text(
                     text = "Network Speed",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = SenetColors.TextPrimary
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 
                 Row(
@@ -207,23 +209,27 @@ private fun SpeedGaugeWidget(
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                     modifier = Modifier
                         .background(
-                            color = SenetColors.SuccessGlow.copy(alpha = 0.15f),
+                            color = if (isMonitoring) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
                             shape = RoundedCornerShape(12.dp)
                         )
                         .padding(horizontal = 12.dp, vertical = 6.dp)
                 ) {
-                    GlowingDot(isActive = isMonitoring, color = SenetColors.SuccessGlow)
+                    if (isMonitoring) {
+                        PulsingDot()
+                    }
                     Text(
                         "LIVE",
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = SenetColors.SuccessGlow,
-                        letterSpacing = 1.2.sp
+                        style = MaterialTheme.typography.labelSmall,
+                        color = if (isMonitoring) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }
             
             // Main gauge
+            // Note: Assuming GlowingGauge can adapt or needs replacement. 
+            // For now, keeping it but wrapping in GoogleCard.
+            // Ideally, this should be a Material 3 style gauge.
             GlowingGauge(
                 value = downloadSpeed.toFloat(),
                 maxValue = 100f,
@@ -244,9 +250,9 @@ private fun SecurityGaugeWidget(
     onClick: () -> Unit = {}
 ) {
     val scoreColor = when {
-        securityScore >= 80 -> SenetColors.SuccessGlow
-        securityScore >= 60 -> SenetColors.WarningGlow
-        else -> SenetColors.ErrorGlow
+        securityScore >= 80 -> MaterialTheme.colorScheme.primary
+        securityScore >= 60 -> MaterialTheme.colorScheme.tertiary
+        else -> MaterialTheme.colorScheme.error
     }
     
     val scoreStatus = when {
@@ -255,11 +261,9 @@ private fun SecurityGaugeWidget(
         else -> "At Risk"
     }
     
-    GlassCard(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
-        withBorder = true
+    GoogleCard(
+        modifier = Modifier.fillMaxWidth(),
+        onClick = onClick
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -272,9 +276,8 @@ private fun SecurityGaugeWidget(
             ) {
                 Text(
                     text = "Security Score",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = SenetColors.TextPrimary
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Icon(
                     Icons.Filled.Security,
@@ -294,8 +297,8 @@ private fun SecurityGaugeWidget(
             
             Text(
                 text = "Tap for details",
-                fontSize = 12.sp,
-                color = SenetColors.TextTertiary
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
@@ -648,9 +651,8 @@ private fun SecurityMetric(label: String, value: String, color: Color) {
 
 @Composable
 private fun DataUsageWidget(networkStats: NetworkStats) {
-    GlassCard(
-        modifier = Modifier.fillMaxWidth(),
-        withBorder = true
+    GoogleCard(
+        modifier = Modifier.fillMaxWidth()
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -662,14 +664,13 @@ private fun DataUsageWidget(networkStats: NetworkStats) {
             ) {
                 Text(
                     text = "Data Usage Today",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = SenetColors.TextPrimary
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Icon(
                     Icons.Filled.DataUsage,
                     contentDescription = null,
-                    tint = SenetColors.ElectricBlue,
+                    tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(28.dp)
                 )
             }
@@ -686,15 +687,13 @@ private fun DataUsageWidget(networkStats: NetworkStats) {
             ) {
                 Text(
                     text = "%.2f MB used".format(networkStats.dataUsedMB),
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = SenetColors.TextSecondary
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
                     text = "%.2f MB total".format(networkStats.dataTotalMB),
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = SenetColors.TextSecondary
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -713,9 +712,8 @@ private fun ConnectedDevicesWidget(networkStats: NetworkStats) {
         label = "deviceCount"
     )
     
-    GlassCard(
-        modifier = Modifier.fillMaxWidth(),
-        withBorder = true
+    GoogleCard(
+        modifier = Modifier.fillMaxWidth()
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -727,15 +725,14 @@ private fun ConnectedDevicesWidget(networkStats: NetworkStats) {
             ) {
                 Text(
                     text = "Connected Devices",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = SenetColors.TextPrimary
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
                     text = "On your local network",
-                    fontSize = 14.sp,
-                    color = SenetColors.TextTertiary
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             
@@ -746,8 +743,8 @@ private fun ConnectedDevicesWidget(networkStats: NetworkStats) {
                     .background(
                         brush = Brush.radialGradient(
                             colors = listOf(
-                                SenetColors.NeonBlue.copy(alpha = 0.25f),
-                                SenetColors.NeonBlue.copy(alpha = 0.05f),
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.25f),
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.05f),
                                 Color.Transparent
                             )
                         ),
@@ -758,7 +755,7 @@ private fun ConnectedDevicesWidget(networkStats: NetworkStats) {
                 Text(
                     text = animatedCount.toString(),
                     fontSize = 48.sp,
-                    color = SenetColors.NeonBlue,
+                    color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -769,18 +766,16 @@ private fun ConnectedDevicesWidget(networkStats: NetworkStats) {
 @Composable
 private fun QuickActionsWidget(navController: NavController?, viewModel: DashboardViewModel) {
     val context = LocalContext.current
-    GlassCard(
-        modifier = Modifier.fillMaxWidth(),
-        withBorder = true
+    GoogleCard(
+        modifier = Modifier.fillMaxWidth()
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
                 text = "Quick Actions",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = SenetColors.TextPrimary
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface
             )
             
             Row(
@@ -791,6 +786,8 @@ private fun QuickActionsWidget(navController: NavController?, viewModel: Dashboa
                     icon = Icons.Filled.Wifi,
                     label = "Scan Network",
                     onClick = { 
+                        viewModel.soundManager.playTap()
+                        viewModel.hapticManager.lightTap()
                         navController?.navigate("network")
                         viewModel.triggerWiFiScan()
                     }
@@ -798,15 +795,28 @@ private fun QuickActionsWidget(navController: NavController?, viewModel: Dashboa
                 QuickActionButton(
                     icon = Icons.Filled.Block,
                     label = "Block App",
-                    onClick = { 
-                        navController?.navigate("security")
+                    onClick = {
+                        viewModel.soundManager.playTap()
+                        viewModel.hapticManager.lightTap()
+                        navController?.navigate("firewall")
+                    }
+                )
+                QuickActionButton(
+                    icon = Icons.Filled.Map,
+                    label = "Geo Block",
+                    onClick = {
+                        viewModel.soundManager.playTap()
+                        viewModel.hapticManager.lightTap()
+                        navController?.navigate("geoblock")
                     }
                 )
                 QuickActionButton(
                     icon = Icons.Filled.History,
-                    label = "View Logs",
-                    onClick = { 
-                        navController?.navigate("activity")
+                    label = "Logs",
+                    onClick = {
+                        viewModel.soundManager.playTap()
+                        viewModel.hapticManager.lightTap()
+                        navController?.navigate("logs")
                     }
                 )
             }
@@ -822,103 +832,29 @@ private fun QuickActionButton(
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.width(90.dp)
+        modifier = Modifier.clickable(onClick = onClick)
     ) {
         Box(
             modifier = Modifier
                 .size(56.dp)
                 .background(
-                    brush = Brush.radialGradient(
-                        colors = listOf(
-                            SenetColors.NeonBlue.copy(alpha = 0.2f),
-                            SenetColors.NeonBlue.copy(alpha = 0.05f)
-                        )
-                    ),
+                    color = MaterialTheme.colorScheme.secondaryContainer,
                     shape = CircleShape
-                )
-                .clickable(onClick = onClick),
+                ),
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                icon,
+                imageVector = icon,
                 contentDescription = label,
-                tint = SenetColors.NeonBlue,
-                modifier = Modifier.size(28.dp)
+                tint = MaterialTheme.colorScheme.onSecondaryContainer
             )
         }
-        Spacer(modifier = Modifier.height(6.dp))
+        Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = label,
-            fontSize = 12.sp,
-            color = SenetColors.TextSecondary,
-            fontWeight = FontWeight.Medium
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurface
         )
-    }
-}
-
-@Composable
-private fun PermissionBanner(
-    onRequestPermission: () -> Unit,
-    onDismiss: () -> Unit
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onRequestPermission() }
-            .background(
-                brush = Brush.horizontalGradient(
-                    colors = listOf(
-                        SenetColors.WarningGlow.copy(alpha = 0.15f),
-                        SenetColors.WarningGlow.copy(alpha = 0.08f)
-                    )
-                ),
-                shape = RoundedCornerShape(22.dp)
-            )
-            .border(
-                width = 1.dp,
-                color = SenetColors.WarningGlow.copy(alpha = 0.4f),
-                shape = RoundedCornerShape(22.dp)
-            )
-            .padding(20.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Row(
-                modifier = Modifier.weight(1f),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Icon(
-                    Icons.Filled.Warning,
-                    contentDescription = null,
-                    tint = SenetColors.WarningGlow,
-                    modifier = Modifier.size(32.dp)
-                )
-                Column {
-                    Text(
-                        text = "Permission Required",
-                        fontSize = 16.sp,
-                        color = SenetColors.TextPrimary,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "Grant usage access for accurate data statistics",
-                        fontSize = 13.sp,
-                        color = SenetColors.TextSecondary
-                    )
-                }
-            }
-            Icon(
-                Icons.Filled.ChevronRight,
-                contentDescription = "Open settings",
-                tint = SenetColors.WarningGlow,
-                modifier = Modifier.size(24.dp)
-            )
-        }
     }
 }
 

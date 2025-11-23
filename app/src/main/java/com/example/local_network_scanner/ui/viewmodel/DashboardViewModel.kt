@@ -27,7 +27,9 @@ class DashboardViewModel @Inject constructor(
     private val networkMonitor: NetworkMonitor,
     private val securityAnalyzer: SecurityAnalyzer,
     private val deviceScanner: DeviceScanner,
-    private val dataUsageMonitor: DataUsageMonitor
+    private val dataUsageMonitor: DataUsageMonitor,
+    val soundManager: com.example.local_network_scanner.ui.feedback.SoundFeedbackManager,
+    val hapticManager: com.example.local_network_scanner.ui.feedback.HapticFeedbackManager
 ) : ViewModel() {
     
     private val _isMonitoring = MutableStateFlow(false)

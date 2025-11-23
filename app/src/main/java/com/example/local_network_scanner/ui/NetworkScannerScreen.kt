@@ -37,6 +37,7 @@ import com.example.local_network_scanner.ui.viewmodel.WifiViewModel
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun NetworkScannerScreen(
+    navController: androidx.navigation.NavController? = null,
     viewModel: WifiViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
@@ -74,29 +75,44 @@ fun NetworkScannerScreen(
         }
     }
     
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(DeepNavy, GradientMiddle, TrueBlack)
-                )
+    Scaffold(
+        topBar = {
+            GoogleTopAppBar(
+                title = "Network Scanner",
+                actions = {
+                    IconButton(
+                        onClick = {
+                            if (permissionGranted) {
+                                viewModel.startScan()
+                            } else {
+                                permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                            }
+                        },
+                        enabled = !isScanning
+                    ) {
+                        if (isScanning) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                color = MaterialTheme.colorScheme.primary,
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Icon(
+                                Icons.Filled.Refresh,
+                                contentDescription = "Scan"
+                            )
+                        }
+                    }
+                },
+                scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
             )
-    ) {
-        // Header
-        NetworkScannerHeader(
-            onScanClick = {
-                if (permissionGranted) {
-                    viewModel.startScan()
-                } else {
-                    permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-                }
-            },
-            isScanning = isScanning
-        )
-        
+        },
+        containerColor = MaterialTheme.colorScheme.background
+    ) { paddingValues ->
         LazyColumn(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
@@ -144,25 +160,9 @@ fun NetworkScannerScreen(
                         Text(
                             text = "Available Networks (${processedResults.size})",
                             style = MaterialTheme.typography.titleMedium,
-                            color = TextPrimary,
+                            color = MaterialTheme.colorScheme.onSurface,
                             fontWeight = FontWeight.SemiBold
                         )
-                        
-                        if (isScanning) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(16.dp),
-                                    strokeWidth = 2.dp,
-                                    color = ElectricBlue
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    text = "Scanning...",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = ElectricBlue
-                                )
-                            }
-                        }
                     }
                 }
                 
@@ -243,60 +243,16 @@ fun NetworkScannerScreen(
 }
 
 @Composable
-private fun NetworkScannerHeader(
-    onScanClick: () -> Unit,
-    isScanning: Boolean
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column {
-            Text(
-                text = "Network Scanner",
-                style = MaterialTheme.typography.headlineMedium,
-                color = TextPrimary,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = "Discover WiFi networks",
-                style = MaterialTheme.typography.bodyMedium,
-                color = TextSecondary
-            )
-        }
-        
-        IconButton(
-            onClick = onScanClick,
-            enabled = !isScanning
-        ) {
-            Icon(
-                Icons.Filled.Refresh,
-                contentDescription = "Scan",
-                tint = if (isScanning) TextTertiary else ElectricBlue
-            )
-        }
-    }
-}
-
-@Composable
 private fun CurrentConnectionCard(
     ssid: String,
     signalStrength: Int,
     localIp: String
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceDarkGray),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    GoogleCard(
+        modifier = Modifier.fillMaxWidth()
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp)
+            modifier = Modifier.fillMaxWidth()
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -306,7 +262,7 @@ private fun CurrentConnectionCard(
                 Text(
                     text = "Current Connection",
                     style = MaterialTheme.typography.titleMedium,
-                    color = TextPrimary,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.SemiBold
                 )
                 
@@ -328,12 +284,12 @@ private fun CurrentConnectionCard(
                     Text(
                         text = "SSID",
                         style = MaterialTheme.typography.bodySmall,
-                        color = TextTertiary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
                         text = ssid,
                         style = MaterialTheme.typography.bodyLarge,
-                        color = TextPrimary,
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Medium
                     )
                 }
@@ -342,12 +298,12 @@ private fun CurrentConnectionCard(
                     Text(
                         text = "IP Address",
                         style = MaterialTheme.typography.bodySmall,
-                        color = TextTertiary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
                         text = localIp,
                         style = MaterialTheme.typography.bodyLarge,
-                        color = TextPrimary,
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Medium
                     )
                 }
@@ -358,7 +314,7 @@ private fun CurrentConnectionCard(
                 Text(
                     text = "Signal: $signalStrength dBm",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = TextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -372,21 +328,16 @@ private fun FilterSortControls(
     onSortChange: (SortOption) -> Unit,
     onFilterChange: (FilterType) -> Unit
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = CardBackground),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+    GoogleCard(
+        modifier = Modifier.fillMaxWidth()
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
+            modifier = Modifier.fillMaxWidth()
         ) {
             Text(
                 text = "Filter & Sort",
                 style = MaterialTheme.typography.titleSmall,
-                color = TextPrimary,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.SemiBold
             )
             
@@ -452,18 +403,12 @@ private fun NetworkCard(
     val isSecured = network.capabilities.contains("WPA") || network.capabilities.contains("WEP")
     val signalColor = getSignalColor(network.level)
     
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceDarkGray),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    GoogleCard(
+        modifier = Modifier.fillMaxWidth(),
+        onClick = onClick
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -471,7 +416,7 @@ private fun NetworkCard(
                 Text(
                     text = network.SSID,
                     style = MaterialTheme.typography.titleMedium,
-                    color = TextPrimary,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.SemiBold
                 )
                 
@@ -485,14 +430,14 @@ private fun NetworkCard(
                         Icon(
                             imageVector = if (isSecured) Icons.Default.Lock else Icons.Default.LockOpen,
                             contentDescription = null,
-                            tint = if (isSecured) VibrантGreen else WarningOrange,
+                            tint = if (isSecured) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = if (isSecured) "Secured" else "Open",
                             style = MaterialTheme.typography.bodySmall,
-                            color = TextSecondary
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                     
@@ -519,22 +464,18 @@ private fun PermissionRequiredCard(
     onGrantPermission: () -> Unit,
     onOpenSettings: () -> Unit
 ) {
-    Card(
+    GoogleCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = WarningOrange.copy(alpha = 0.1f)),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        containerColor = MaterialTheme.colorScheme.errorContainer
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(24.dp),
+            modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Icon(
                 Icons.Default.LocationOff,
                 contentDescription = null,
-                tint = WarningOrange,
+                tint = MaterialTheme.colorScheme.error,
                 modifier = Modifier.size(48.dp)
             )
             
@@ -543,7 +484,7 @@ private fun PermissionRequiredCard(
             Text(
                 text = "Location Permission Required",
                 style = MaterialTheme.typography.titleLarge,
-                color = TextPrimary,
+                color = MaterialTheme.colorScheme.onErrorContainer,
                 fontWeight = FontWeight.Bold,
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
             )
@@ -553,7 +494,7 @@ private fun PermissionRequiredCard(
             Text(
                 text = "Location permission is required to scan for WiFi networks",
                 style = MaterialTheme.typography.bodyMedium,
-                color = TextSecondary,
+                color = MaterialTheme.colorScheme.onErrorContainer,
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
             )
             
@@ -562,15 +503,15 @@ private fun PermissionRequiredCard(
             Button(
                 onClick = onGrantPermission,
                 modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = WarningOrange)
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
             ) {
-                Text("Grant Permission")
+                Text("Grant Permission", color = MaterialTheme.colorScheme.onError)
             }
             
             Spacer(modifier = Modifier.height(8.dp))
             
             TextButton(onClick = onOpenSettings) {
-                Text("Open Settings", color = ElectricBlue)
+                Text("Open Settings", color = MaterialTheme.colorScheme.error)
             }
         }
     }
@@ -578,22 +519,19 @@ private fun PermissionRequiredCard(
 
 @Composable
 private fun EmptyNetworksCard() {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceDarkGray),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    GoogleCard(
+        modifier = Modifier.fillMaxWidth()
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(40.dp),
+                .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Icon(
                 Icons.Default.WifiOff,
                 contentDescription = null,
-                tint = TextTertiary,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(64.dp)
             )
             
@@ -602,7 +540,7 @@ private fun EmptyNetworksCard() {
             Text(
                 text = "No Networks Found",
                 style = MaterialTheme.typography.titleLarge,
-                color = TextPrimary,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold
             )
             
@@ -611,7 +549,7 @@ private fun EmptyNetworksCard() {
             Text(
                 text = "Tap the refresh button to scan again",
                 style = MaterialTheme.typography.bodyMedium,
-                color = TextSecondary,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
             )
         }
