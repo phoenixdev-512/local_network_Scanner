@@ -53,6 +53,84 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import com.example.local_network_scanner.Screen
+import com.example.local_network_scanner.services.RiskLevel
+import com.example.local_network_scanner.ui.components.GoogleCard
+import com.example.local_network_scanner.ui.components.GoogleTopAppBar
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.Surface
+import com.example.local_network_scanner.ui.theme.*
+import com.example.local_network_scanner.ui.viewmodel.MainViewModel
+import com.example.local_network_scanner.ui.viewmodel.SecurityViewModel
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun FirewallScreen(
+    navController: NavController,
+    mainViewModel: MainViewModel = hiltViewModel(),
+    securityViewModel: SecurityViewModel = hiltViewModel()
+) {
+    val context = LocalContext.current
+    val isVpnActive by mainViewModel.isVpnActive.collectAsState()
+    val profiles by mainViewModel.profiles.collectAsState()
+    val activeProfile by mainViewModel.activeProfile.collectAsState()
+    var expanded by remember { mutableStateOf(false) }
+    
+    // Security scan state
+    val isScanning by securityViewModel.isScanning.collectAsState()
+    val scanProgress by securityViewModel.scanProgress.collectAsState()
+    val scanComplete by securityViewModel.scanComplete.collectAsState()
+    val suspiciousApps by securityViewModel.suspiciousApps.collectAsState()
+    
+    // Security metrics
+    val securityScore by securityViewModel.securityScore.collectAsState()
+    val threatsDetected by securityViewModel.threatsDetected.collectAsState()
+    val appsWithNetworkAccess by securityViewModel.appsWithNetworkAccess.collectAsState()
+    val activeConnections by securityViewModel.activeConnections.collectAsState()
+    
+    // VPN permission launcher
+    val vpnPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            mainViewModel.startVpn()
+        } else {
+            Toast.makeText(context, "VPN permission denied", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            GoogleTopAppBar(
+                title = "Security Center",
+                actions = {
+                    IconButton(onClick = { navController.navigate(Screen.Settings.route) }) {
+                        Icon(Icons.Filled.Settings, contentDescription = "Settings")
+                    }
+                },
+                scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+            )
+        },
+        containerColor = MaterialTheme.colorScheme.background
+    ) { paddingValues ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // Security Score Card
+            item {
+                SecurityScoreCard(securityScore)
+            }
+
             // Real-time Status Card
             item {
                 RealTimeStatusCard(
@@ -64,16 +142,14 @@ import androidx.compose.ui.graphics.Color
             
             // Profile Selector
             item {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(containerColor = SurfaceDarkGray)
+                GoogleCard(
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
                             text = "Active Profile",
                             style = MaterialTheme.typography.titleMedium,
-                            color = TextPrimary,
+                            color = MaterialTheme.colorScheme.onSurface,
                             fontWeight = FontWeight.SemiBold
                         )
                         Spacer(modifier = Modifier.height(8.dp))
@@ -90,7 +166,13 @@ import androidx.compose.ui.graphics.Color
                                 },
                                 modifier = Modifier
                                     .menuAnchor()
-                                    .fillMaxWidth()
+                                    .fillMaxWidth(),
+                                colors = ExposedDropdownMenuDefaults.textFieldColors(
+                                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface
+                                )
                             )
                             ExposedDropdownMenu(
                                 expanded = expanded,
@@ -120,10 +202,8 @@ import androidx.compose.ui.graphics.Color
 
             // Deep Scan Button
             item {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(containerColor = SurfaceDarkGray)
+                GoogleCard(
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(
                         modifier = Modifier
@@ -134,7 +214,7 @@ import androidx.compose.ui.graphics.Color
                         Text(
                             text = if (isVpnActive) "VPN Active - Protected" else "VPN Inactive",
                             style = MaterialTheme.typography.titleMedium,
-                            color = if (isVpnActive) VibrантGreen else TextSecondary,
+                            color = if (isVpnActive) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                             fontWeight = FontWeight.SemiBold
                         )
                         
@@ -149,7 +229,7 @@ import androidx.compose.ui.graphics.Color
                                 Text(
                                     text = "Deep Scanning Device...",
                                     style = MaterialTheme.typography.bodyMedium,
-                                    color = TextPrimary
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                                 Spacer(modifier = Modifier.height(8.dp))
                                 LinearProgressIndicator(
@@ -157,13 +237,13 @@ import androidx.compose.ui.graphics.Color
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .height(8.dp),
-                                    color = ElectricBlue,
-                                    trackColor = CardBackground,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
                                 )
                                 Text(
                                     text = "${(scanProgress * 100).toInt()}%",
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = TextSecondary
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }
@@ -181,8 +261,8 @@ import androidx.compose.ui.graphics.Color
                             enabled = !isScanning,
                             shape = CircleShape,
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = ElectricBlue,
-                                disabledContainerColor = CardBackground
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
                             )
                         ) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -190,11 +270,11 @@ import androidx.compose.ui.graphics.Color
                                     imageVector = Icons.Default.Shield,
                                     contentDescription = "Deep Scan",
                                     modifier = Modifier.size(70.dp),
-                                    tint = Color.White
+                                    tint = MaterialTheme.colorScheme.onPrimary
                                 )
                                 Text(
                                     text = if (isScanning) "SCANNING" else "DEEP SCAN",
-                                    color = Color.White,
+                                    color = MaterialTheme.colorScheme.onPrimary,
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -206,7 +286,7 @@ import androidx.compose.ui.graphics.Color
                         Text(
                             text = "Scan for suspicious apps and security threats",
                             style = MaterialTheme.typography.bodySmall,
-                            color = TextTertiary
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -218,7 +298,7 @@ import androidx.compose.ui.graphics.Color
                     Text(
                         text = "Suspicious Apps Detected (${suspiciousApps.size})",
                         style = MaterialTheme.typography.titleLarge,
-                        color = ThreatRed,
+                        color = MaterialTheme.colorScheme.error,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(vertical = 8.dp)
                     )
@@ -229,10 +309,8 @@ import androidx.compose.ui.graphics.Color
                 }
             } else if (scanComplete && suspiciousApps.isEmpty()) {
                 item {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(20.dp),
-                        colors = CardDefaults.cardColors(containerColor = SurfaceDarkGray)
+                    GoogleCard(
+                        modifier = Modifier.fillMaxWidth()
                     ) {
                         Column(
                             modifier = Modifier
@@ -243,182 +321,159 @@ import androidx.compose.ui.graphics.Color
                             Icon(
                                 Icons.Default.Security,
                                 contentDescription = null,
-                                tint = VibrантGreen,
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-            // Real-time Status Card
-            item {
-                RealTimeStatusCard(
-                    appsWithNetworkAccess = appsWithNetworkAccess,
-                    activeConnections = activeConnections,
-                    threatsDetected = threatsDetected
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(48.dp)
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = "No Suspicious Apps Found",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Text(
+                                text = "Your device appears to be secure",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SecurityScoreCard(score: Int) {
+    val scoreColor = when {
+        score >= 80 -> MaterialTheme.colorScheme.primary
+        score >= 60 -> MaterialTheme.colorScheme.secondary
+        else -> MaterialTheme.colorScheme.error
+    }
+    
+    val scoreText = when {
+        score >= 80 -> "Secure"
+        score >= 60 -> "Moderate"
+        else -> "At Risk"
+    }
+    
+    GoogleCard(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Security Score",
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.SemiBold
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = score.toString(),
+                style = MaterialTheme.typography.displayLarge,
+                color = scoreColor,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = scoreText,
+                style = MaterialTheme.typography.titleMedium,
+                color = scoreColor
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            LinearProgressIndicator(
+                progress = { score / 100f },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(8.dp),
+                color = scoreColor,
+                trackColor = MaterialTheme.colorScheme.surfaceVariant,
+            )
+        }
+    }
+}
+
+@Composable
+private fun RealTimeStatusCard(
+    appsWithNetworkAccess: Int,
+    activeConnections: Int,
+    threatsDetected: Int
+) {
+    GoogleCard(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp)
+        ) {
+            Text(
+                text = "Real-Time Status",
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.SemiBold
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                StatusMetric(
+                    value = appsWithNetworkAccess.toString(),
+                    label = "Apps with\nNetwork Access",
+                    color = MaterialTheme.colorScheme.tertiary
+                )
+                StatusMetric(
+                    value = activeConnections.toString(),
+                    label = "Active\nConnections",
+                    color = MaterialTheme.colorScheme.primary
+                )
+                StatusMetric(
+                    value = threatsDetected.toString(),
+                    label = "Threats\nDetected",
+                    color = if (threatsDetected > 0) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
                 )
             }
-            
-            // Profile Selector
-            item {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(containerColor = SurfaceDarkGray)
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(
-                            text = "Active Profile",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = TextPrimary,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        ExposedDropdownMenuBox(
-                            expanded = expanded,
-                            onExpandedChange = { expanded = !expanded }
-                        ) {
-                            TextField(
-                                value = activeProfile?.name ?: "No Profile",
-                                onValueChange = {},
-                                readOnly = true,
-                                trailingIcon = { 
-                                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) 
-                                },
-                                modifier = Modifier
-                                    .menuAnchor()
-                                    .fillMaxWidth()
-                            )
-                            ExposedDropdownMenu(
-                                expanded = expanded,
-                                onDismissRequest = { expanded = false }
-                            ) {
-                                profiles.forEach { profile ->
-                                    DropdownMenuItem(
-                                        text = { Text(text = profile.name) },
-                                        onClick = {
-                                            mainViewModel.setActiveProfile(profile)
-                                            expanded = false
-                                        }
-                                    )
-                                }
-                                DropdownMenuItem(
-                                    text = { Text("Add new profile...") },
-                                    onClick = { 
-                                        Toast.makeText(context, "Add Profile - Under Development", Toast.LENGTH_SHORT).show()
-                                        expanded = false
-                                    }
-                                )
-                            }
-                        }
-                    }
-                }
-            }
+        }
+    }
+}
 
-            // Deep Scan Button
-            item {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(containerColor = SurfaceDarkGray)
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(20.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = if (isVpnActive) "VPN Active - Protected" else "VPN Inactive",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = if (isVpnActive) VibrантGreen else TextSecondary,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                        
-                        Spacer(modifier = Modifier.height(16.dp))
-                        
-                        // Scanning progress indicator
-                        AnimatedVisibility(visible = isScanning) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier.padding(vertical = 16.dp)
-                            ) {
-                                Text(
-                                    text = "Deep Scanning Device...",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = TextPrimary
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-                                LinearProgressIndicator(
-                                    progress = { scanProgress },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(8.dp),
-                                    color = ElectricBlue,
-                                    trackColor = CardBackground,
-                                )
-                                Text(
-                                    text = "${(scanProgress * 100).toInt()}%",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = TextSecondary
-                                )
-                            }
-                        }
-                        
-                        Spacer(modifier = Modifier.height(16.dp))
-                        
-                        // Main action button
-                        Button(
-                            onClick = {
-                                if (!isScanning) {
-                                    securityViewModel.performDeepScan()
-                                }
-                            },
-                            modifier = Modifier.size(180.dp),
-                            enabled = !isScanning,
-                            shape = CircleShape,
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = ElectricBlue,
-                                disabledContainerColor = CardBackground
-                            )
-                        ) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Icon(
-                                    imageVector = Icons.Default.Shield,
-                                    contentDescription = "Deep Scan",
-                                    modifier = Modifier.size(70.dp),
-                                    tint = Color.White
-                                )
-                                Text(
-                                    text = if (isScanning) "SCANNING" else "DEEP SCAN",
-                                    color = Color.White,
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                        }
-                        
-                        Spacer(modifier = Modifier.height(16.dp))
-                        
-                        Text(
-                            text = "Scan for suspicious apps and security threats",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = TextTertiary
-                        )
-                    }
-                }
-            }
-            
-            // Suspicious Apps Results
-            if (scanComplete && suspiciousApps.isNotEmpty()) {
-                item {
-                    Text(
-                        text = "Suspicious Apps Detected (${suspiciousApps.size})",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = ThreatRed,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(vertical = 8.dp)
-                    )
-                }
-                
+@Composable
+private fun StatusMetric(value: String, label: String, color: Color) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(
+            text = value,
+            style = MaterialTheme.typography.headlineMedium,
+            color = color,
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+        )
+    }
+}
+
+@Composable
+private fun SuspiciousAppCard(app: com.example.local_network_scanner.services.SuspiciousApp) {
+    val riskColor = when (app.riskLevel) {
+        RiskLevel.HIGH -> MaterialTheme.colorScheme.error
+        RiskLevel.MEDIUM -> MaterialTheme.colorScheme.error
+        RiskLevel.LOW -> MaterialTheme.colorScheme.tertiary
+    }
+    
+    GoogleCard(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
